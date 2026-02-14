@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créateur de Compétences - Comté de Clairebois</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/common.css">
+    <style>
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-family: 'Cinzel', serif;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            transform: translateX(-5px);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            opacity: 0.8;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .skill-builder, .skill-preview {
+            background: linear-gradient(135deg, rgba(30, 45, 63, 0.8) 0%, rgba(15, 25, 35, 0.8) 100%);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(200, 155, 60, 0.2);
+        }
+
+        .skill-preview {
+            position: sticky;
+            top: 2rem;
+            height: fit-content;
+        }
+
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(200, 155, 60, 0.3);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            display: block;
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .text-input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(30, 45, 63, 0.5);
+            border: 2px solid rgba(200, 155, 60, 0.2);
+            border-radius: 8px;
+            color: var(--text-light);
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .text-input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(200, 155, 60, 0.1);
+        }
+
+        select option {
+            background: var(--secondary);
+            color: var(--text-light);
+        }
+
+        .cost-display {
+            background: rgba(200, 155, 60, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .cost-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+
+        .cost-label {
+            font-family: 'Cinzel', serif;
+            color: var(--accent);
+        }
+
+        .cost-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .cost-value.error {
+            color: var(--danger);
+        }
+
+        .enhancement-list {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .enhancement-item {
+            background: rgba(30, 45, 63, 0.6);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .enhancement-item:has(input:checked) {
+            border-color: var(--primary);
+            background: rgba(200, 155, 60, 0.1);
+        }
+
+        .enhancement-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .enhancement-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .enhancement-name {
+            font-family: 'Cinzel', serif;
+            color: var(--primary);
+            font-size: 1.1rem;
+            flex: 1;
+        }
+
+        .enhancement-cost {
+            background: var(--primary);
+            color: var(--secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .enhancement-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.4;
+            margin-left: 2rem;
+        }
+
+        .rank-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: 2rem;
+            margin-top: 0.5rem;
+        }
+
+        .rank-btn {
+            padding: 0.4rem 0.8rem;
+            background: rgba(30, 45, 63, 0.8);
+            border: 2px solid rgba(200, 155, 60, 0.3);
+            border-radius: 6px;
+            color: var(--text-light);
+            font-family: 'Cinzel', serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .rank-btn.active {
+            background: var(--primary);
+            color: var(--secondary);
+            border-color: var(--primary);
+        }
+
+        .rank-btn:hover:not(.active) {
+            border-color: var(--primary);
+        }
+
+        .preview-skill {
+            background: rgba(200, 155, 60, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid rgba(200, 155, 60, 0.3);
+        }
+
+        .preview-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .preview-rank {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .preview-desc {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(200, 155, 60, 0.2);
+        }
+
+        .preview-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .preview-stat-label {
+            opacity: 0.8;
+        }
+
+        .preview-stat-value {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .preview-enhancements {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(200, 155, 60, 0.2);
+        }
+
+        .preview-enhancement {
+            padding: 0.4rem 0;
+            font-size: 0.9rem;
+        }
+
+        .preview-enhancement::before {
+            content: '✦';
+            color: var(--primary);
+            margin-right: 0.5rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .skill-preview {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .skill-builder, .skill-preview {
+                padding: 1.5rem;
+            }
+
+            .section-title {
+                font-size: 1.2rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-link">← Retour à l'accueil</a>
+        
+        <header>
+            <h1>Créateur de Compétences</h1>
+            <p class="subtitle">Conception de capacités équilibrées</p>
+        </header>
+
+        <div class="main-grid">
+            <!-- Builder -->
+            <div class="skill-builder">
+                <h2 class="section-title">Configuration</h2>
+
+                <div class="cost-display">
+                    <div class="cost-row">
+                        <span class="cost-label">Rang Total</span>
+                        <span class="cost-value" id="totalRank">1</span>
+                    </div>
+                    <div class="cost-row">
+                        <span class="cost-label">Coût en Points</span>
+                        <span class="cost-value" id="totalCost">1</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Nom de la Capacité</label>
+                    <input type="text" class="text-input" id="skillName" placeholder="Ex: Boule de Feu" value="Capacité Sans Nom">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Description</label>
+                    <textarea class="text-input" id="skillDesc" placeholder="Décrivez l'effet de la capacité...">Une capacité magique puissante.</textarea>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Type de Ressource</label>
+                    <select id="resourceType">
+                        <option value="mana">Mana (INT)</option>
+                        <option value="endurance">Endurance (FOR/AGI)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Type de Capacité</label>
+                    <select id="skillType">
+                        <option value="damage">Dégâts</option>
+                        <option value="heal">Soin</option>
+                        <option value="buff">Buff</option>
+                        <option value="debuff">Debuff</option>
+                        <option value="summon">Invocation</option>
+                        <option value="cosmetic">Cosmétique</option>
+                    </select>
+                </div>
+
+                <h2 class="section-title" style="margin-top: 2rem;">Améliorations</h2>
+
+                <div class="enhancement-list" id="enhancementList">
+                    <!-- Améliorations générées par JS -->
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="saveSkill()">💾 Sauvegarder</button>
+                    <button class="btn btn-secondary" onclick="resetSkill()">🔄 Réinitialiser</button>
+                    <button class="btn btn-secondary" onclick="loadSkill()">📁 Charger</button>
+                </div>
+            </div>
+
+            <!-- Preview -->
+            <div class="skill-preview">
+                <h2 class="section-title">Prévisualisation</h2>
+                <div class="preview-skill" id="previewCard">
+                    <!-- Généré par JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/skill-creator.js"></script>
+</body>
+</html>
