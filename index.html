@@ -3,103 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Créateur de Personnage - Comté de Clairebois</title>
+    <title>Comté de Clairebois - Outils</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="css/common.css">
     <style>
-        :root {
-            --primary: #c89b3c;
-            --primary-dark: #9d7b2f;
-            --secondary: #0a1428;
-            --secondary-light: #1a2642;
-            --accent: #e4ae39;
-            --text-light: #e8dcc4;
-            --text-dark: #1a1a1a;
-            --surface: #0f1923;
-            --surface-light: #1e2d3f;
-            --danger: #c2413e;
-            --success: #4a9171;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Crimson Pro', serif;
-            background: linear-gradient(135deg, var(--secondary) 0%, #0d1b2a 50%, var(--surface) 100%);
-            color: var(--text-light);
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(200, 155, 60, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(228, 174, 57, 0.05) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-            position: relative;
-            z-index: 1;
-        }
-
         header {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 4rem;
             animation: fadeInDown 0.8s ease-out;
-            position: relative;
-        }
-
-        .load-character-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            padding: 0.75rem 1.5rem;
-            background: rgba(200, 155, 60, 0.2);
-            border: 2px solid rgba(200, 155, 60, 0.5);
-            border-radius: 10px;
-            color: var(--primary);
-            font-family: 'Cinzel', serif;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .load-character-btn:hover {
-            background: rgba(200, 155, 60, 0.3);
-            border-color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(200, 155, 60, 0.3);
-        }
-
-        h1 {
-            font-family: 'Cinzel', serif;
-            font-size: 3.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 50%, var(--primary) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
-            letter-spacing: 0.05em;
-            text-shadow: 0 0 30px rgba(200, 155, 60, 0.3);
         }
 
         .subtitle {
@@ -109,146 +20,42 @@
             letter-spacing: 0.1em;
             text-transform: uppercase;
             font-weight: 300;
+            margin-bottom: 0.5rem;
         }
 
-        .progress-bar {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 3rem;
-            padding: 0 1rem;
-            position: relative;
-            animation: fadeIn 1s ease-out 0.3s both;
-        }
-
-        .progress-bar::before {
-            content: '';
-            position: absolute;
-            top: 1.5rem;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--surface-light);
-            z-index: 0;
-        }
-
-        .progress-line {
-            position: absolute;
-            top: 1.5rem;
-            left: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
-            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1;
-            box-shadow: 0 0 10px rgba(200, 155, 60, 0.5);
-        }
-
-        .step-indicator {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .step-indicator:hover {
-            transform: translateY(-2px);
-        }
-
-        .step-circle {
-            width: 3rem;
-            height: 3rem;
-            border-radius: 50%;
-            background: var(--surface-light);
-            border: 2px solid var(--surface-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .step-indicator.active .step-circle {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            border-color: var(--accent);
-            box-shadow: 0 0 20px rgba(200, 155, 60, 0.6);
-            color: var(--secondary);
-        }
-
-        .step-indicator.completed .step-circle {
-            background: var(--success);
-            border-color: var(--success);
-            color: white;
-        }
-
-        .step-label {
-            margin-top: 0.5rem;
-            font-size: 0.85rem;
-            text-align: center;
-            opacity: 0.6;
-            transition: opacity 0.3s ease;
-        }
-
-        .step-indicator.active .step-label {
-            opacity: 1;
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 2rem;
-            animation: fadeIn 1s ease-out 0.5s both;
-        }
-
-        .step-content {
-            background: rgba(15, 25, 35, 0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 2.5rem;
-            border: 1px solid rgba(200, 155, 60, 0.2);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-            min-height: 600px;
-        }
-
-        .step-title {
-            font-family: 'Cinzel', serif;
-            font-size: 2rem;
-            color: var(--primary);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .step-description {
+        .description {
+            font-size: 1rem;
             color: var(--text-light);
-            opacity: 0.8;
-            margin-bottom: 2rem;
+            opacity: 0.6;
+            max-width: 600px;
+            margin: 0 auto;
             line-height: 1.6;
         }
 
-        .options-grid {
+        .tools-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeIn 1s ease-out 0.3s both;
         }
 
-        .option-card {
+        .tool-card {
             background: linear-gradient(135deg, rgba(30, 45, 63, 0.8) 0%, rgba(15, 25, 35, 0.8) 100%);
-            border-radius: 12px;
-            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2.5rem;
             border: 2px solid transparent;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
+            text-decoration: none;
+            display: block;
         }
 
-        .option-card::before {
+        .tool-card::before {
             content: '';
             position: absolute;
             top: 0;
@@ -257,331 +64,129 @@
             height: 100%;
             background: linear-gradient(135deg, rgba(200, 155, 60, 0.1) 0%, transparent 100%);
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.4s ease;
         }
 
-        .option-card:hover::before {
+        .tool-card:hover::before {
             opacity: 1;
         }
 
-        .option-card:hover {
-            transform: translateY(-4px);
-            border-color: rgba(200, 155, 60, 0.5);
-            box-shadow: 0 8px 25px rgba(200, 155, 60, 0.2);
-        }
-
-        .option-card.selected {
+        .tool-card:hover {
+            transform: translateY(-8px);
             border-color: var(--primary);
-            background: linear-gradient(135deg, rgba(200, 155, 60, 0.15) 0%, rgba(15, 25, 35, 0.8) 100%);
-            box-shadow: 0 8px 30px rgba(200, 155, 60, 0.3);
+            box-shadow: 0 12px 40px rgba(200, 155, 60, 0.3);
         }
 
-        .option-card.selected::after {
-            content: '✓';
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            width: 2rem;
-            height: 2rem;
-            background: var(--primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--secondary);
-            font-weight: 700;
-        }
-
-        .option-card.disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .option-card.disabled:hover {
-            transform: none;
-            border-color: transparent;
-            box-shadow: none;
-        }
-
-        .option-name {
-            font-family: 'Cinzel', serif;
-            font-size: 1.3rem;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .option-stats {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .stat-badge {
-            background: rgba(200, 155, 60, 0.2);
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            border: 1px solid rgba(200, 155, 60, 0.3);
-        }
-
-        .option-ability {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(200, 155, 60, 0.2);
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .sidebar {
-            position: sticky;
-            top: 2rem;
-            height: fit-content;
-        }
-
-        .character-sheet {
-            background: linear-gradient(135deg, rgba(15, 25, 35, 0.9) 0%, rgba(10, 20, 40, 0.9) 100%);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 2rem;
-            border: 1px solid rgba(200, 155, 60, 0.3);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-        }
-
-        .sheet-title {
-            font-family: 'Cinzel', serif;
-            font-size: 1.5rem;
-            color: var(--accent);
+        .tool-icon {
+            font-size: 3.5rem;
             margin-bottom: 1.5rem;
+            display: block;
             text-align: center;
-            border-bottom: 2px solid rgba(200, 155, 60, 0.3);
-            padding-bottom: 1rem;
+            animation: float 3s ease-in-out infinite;
         }
 
-        .sheet-section {
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .tool-card:nth-child(1) .tool-icon { animation-delay: 0s; }
+        .tool-card:nth-child(2) .tool-icon { animation-delay: 0.5s; }
+        .tool-card:nth-child(3) .tool-icon { animation-delay: 1s; }
+
+        .tool-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .tool-description {
+            color: var(--text-light);
+            opacity: 0.8;
+            line-height: 1.6;
+            text-align: center;
             margin-bottom: 1.5rem;
         }
 
-        .sheet-label {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+        .tool-features {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0;
+        }
+
+        .tool-features li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-light);
             opacity: 0.7;
-            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
         }
 
-        .sheet-value {
-            font-size: 1.2rem;
-            color: var(--primary);
-            font-weight: 600;
-            padding: 0.5rem;
-            background: rgba(200, 155, 60, 0.1);
-            border-radius: 8px;
-            border-left: 3px solid var(--primary);
+        .tool-features li::before {
+            content: '⚔️';
+            position: absolute;
+            left: 0;
         }
 
-        .sheet-value.empty {
-            color: rgba(255, 255, 255, 0.3);
-            font-style: italic;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .stat-box {
-            text-align: center;
-            padding: 1rem;
-            background: rgba(200, 155, 60, 0.1);
-            border-radius: 12px;
-            border: 1px solid rgba(200, 155, 60, 0.2);
-        }
-
-        .stat-name {
+        .tool-status {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            opacity: 0.7;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-value {
-            font-family: 'Cinzel', serif;
-            font-size: 2rem;
-            color: var(--accent);
-            font-weight: 700;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-            justify-content: space-between;
-        }
-
-        .btn {
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 12px;
-            font-family: 'Cinzel', serif;
-            font-size: 1rem;
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+            margin-top: 1rem;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            color: var(--secondary);
-            box-shadow: 0 4px 15px rgba(200, 155, 60, 0.3);
+        .status-available {
+            background: rgba(74, 145, 113, 0.2);
+            border: 1px solid var(--success);
+            color: var(--success);
         }
 
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(200, 155, 60, 0.5);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--text-light);
-            border: 2px solid rgba(200, 155, 60, 0.3);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(200, 155, 60, 0.1);
-            border-color: var(--primary);
-        }
-
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .input-label {
-            display: block;
-            font-family: 'Cinzel', serif;
-            font-size: 1.1rem;
+        .status-soon {
+            background: rgba(200, 155, 60, 0.2);
+            border: 1px solid var(--primary);
             color: var(--primary);
-            margin-bottom: 0.5rem;
         }
 
-        .text-input {
-            width: 100%;
-            padding: 1rem;
-            background: rgba(30, 45, 63, 0.5);
-            border: 2px solid rgba(200, 155, 60, 0.2);
-            border-radius: 12px;
-            color: var(--text-light);
-            font-family: 'Crimson Pro', serif;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .text-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(200, 155, 60, 0.1);
-        }
-
-        .final-sheet {
-            background: linear-gradient(135deg, rgba(15, 25, 35, 0.95) 0%, rgba(10, 20, 40, 0.95) 100%);
-            border-radius: 20px;
-            padding: 3rem;
-            border: 2px solid var(--primary);
-            box-shadow: 0 20px 60px rgba(200, 155, 60, 0.3);
-        }
-
-        .final-title {
-            font-family: 'Cinzel', serif;
-            font-size: 2.5rem;
-            color: var(--accent);
+        footer {
             text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .final-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideInLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @media (max-width: 1024px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-
-            .sidebar {
-                position: static;
-            }
-
-            h1 {
-                font-size: 2.5rem;
-            }
-
-            .load-character-btn {
-                position: static;
-                display: block;
-                margin: 0 auto 1.5rem;
-            }
+            margin-top: 5rem;
+            padding: 2rem;
+            color: var(--text-light);
+            opacity: 0.5;
+            font-size: 0.9rem;
         }
 
         @media (max-width: 768px) {
-            .options-grid {
-                grid-template-columns: 1fr;
+            .container {
+                padding: 1rem;
             }
 
-            .progress-bar {
-                overflow-x: auto;
-                padding-bottom: 1rem;
+            h1 {
+                font-size: 2rem;
             }
 
-            .stats-grid {
+            .tools-grid {
                 grid-template-columns: 1fr;
+                gap: 1.5rem;
             }
-            
-            .step-content > div[style*="grid-template-columns: 1fr 1fr"] {
-                grid-template-columns: 1fr !important;
+
+            .tool-card {
+                padding: 2rem;
+            }
+
+            .tool-icon {
+                font-size: 2.5rem;
+            }
+
+            .tool-title {
+                font-size: 1.5rem;
             }
         }
     </style>
@@ -589,1458 +194,69 @@
 <body>
     <div class="container">
         <header>
-            <button class="load-character-btn" onclick="document.getElementById('loadJsonInput').click()">
-                📁 Charger
-            </button>
-            <input type="file" id="loadJsonInput" accept=".json" style="display: none;" onchange="loadCharacterFromJson(event)">
-            
             <h1>Comté de Clairebois</h1>
-            <p class="subtitle">Créateur de personnage</p>
+            <p class="subtitle">Suite d'outils pour maîtres de jeu</p>
+            <p class="description">
+                Créez, gérez et équilibrez votre univers de jeu de rôle avec nos outils dédiés.
+            </p>
         </header>
 
-        <div class="progress-bar" id="progressBar"></div>
+        <div class="tools-grid">
+            <!-- Créateur de Personnage -->
+            <a href="pages/character-creator.html" class="tool-card">
+                <span class="tool-icon">⚔️</span>
+                <h2 class="tool-title">Créateur de Personnage</h2>
+                <p class="tool-description">
+                    Générez des fiches de personnage complètes avec stats, races, archétypes et formations.
+                </p>
+                <ul class="tool-features">
+                    <li>23 races disponibles</li>
+                    <li>7 archétypes de combat</li>
+                    <li>41 formations & compétences</li>
+                    <li>Export PNG et JSON</li>
+                    <li>Avatar personnalisable</li>
+                </ul>
+                <span class="tool-status status-available">✓ Disponible</span>
+            </a>
 
-        <div class="main-content">
-            <div class="step-content" id="stepContent"></div>
-            
-            <aside class="sidebar">
-                <div class="character-sheet" id="characterSheet"></div>
-            </aside>
+            <!-- Créateur de Compétences -->
+            <a href="pages/skill-creator.html" class="tool-card">
+                <span class="tool-icon">📜</span>
+                <h2 class="tool-title">Créateur de Compétences</h2>
+                <p class="tool-description">
+                    Concevez des compétences, sorts et capacités équilibrées pour votre système.
+                </p>
+                <ul class="tool-features">
+                    <li>Calculateur de coûts</li>
+                    <li>Équilibrage automatique</li>
+                    <li>Templates prédéfinis</li>
+                    <li>Import/Export de compétences</li>
+                    <li>Bibliothèque de capacités</li>
+                </ul>
+                <span class="tool-status status-available">✓ Disponible</span>
+            </a>
+
+            <!-- Économie -->
+            <a href="pages/economy.html" class="tool-card">
+                <span class="tool-icon">💰</span>
+                <h2 class="tool-title">Économie</h2>
+                <p class="tool-description">
+                    Gérez la richesse, les prix et l'économie de votre monde de jeu.
+                </p>
+                <ul class="tool-features">
+                    <li>Calculateur de richesse</li>
+                    <li>Générateur de prix</li>
+                    <li>Tables de coûts</li>
+                    <li>Inflation & conversion</li>
+                    <li>Récompenses équilibrées</li>
+                </ul>
+                <span class="tool-status status-soon">Bientôt disponible</span>
+            </a>
         </div>
+
+        <footer>
+            © 2026 Comté de Clairebois - Tous droits réservés
+        </footer>
     </div>
-
-    <script>
-        // Données du jeu
-        const gameData = {
-            races: [
-                { name: "Bien-né", stats: { agi: 10, int: 20, pv: 6, pm: 3 }, ability: "Capacité magique en plus" },
-                { name: "Dracthyr", stats: { for: 20, agi: 10, pv: 10 }, ability: "Soldat né" },
-                { name: "Draeneï", stats: { for: 10, int: 20, pv: 10 }, ability: "Don des Naarus" },
-                { name: "Elfe de la nuit", stats: { agi: 20, int: 10, pv: 6 }, ability: "Camouflage" },
-                { name: "Elfe de Sang", stats: { agi: 10, int: 20, pv: 6 }, ability: "Ponction" },
-                { name: "Elfe du vide", stats: { agi: 10, int: 20, pv: 6 }, ability: "Traversée du vide" },
-                { name: "Gnome", stats: { agi: 10, int: 20, pv: 6 }, ability: "Bricoleur" },
-                { name: "Gobelin", stats: { agi: 10, int: 20, pv: 6 }, ability: "Avarice" },
-                { name: "Haut Elfe", stats: { agi: 10, int: 20, pv: 6 }, ability: "1 Pouvoir magique rang 1" },
-                { name: "Humain", stats: { pv: 8 }, ability: "Polyvalence", hasChoice: true, choices: [
-                    { label: "FOR", stats: { for: 20 } },
-                    { label: "AGI", stats: { agi: 20 } },
-                    { label: "INT", stats: { int: 20 } }
-                ]},
-                { name: "Mort-vivant", stats: { for: 10, int: 20, pv: 6 }, ability: "Mort Vivant" },
-                { name: "Sombrefer", stats: { for: 20, agi: 10, pv: 10 }, ability: "Sang de feu" },
-                { name: "Nain", stats: { for: 20, int: 10, pv: 10 }, ability: "Peau de pierre" },
-                { name: "Orc", stats: { for: 20, agi: 10, pv: 10 }, ability: "Furie" },
-                { name: "Pandaren", stats: { for: 20, agi: 10, pv: 10 }, ability: "Bon vivant" },
-                { name: "Sacrenuit", stats: { agi: 10, int: 20, pv: 6 }, ability: "Extra magic damage +2" },
-                { name: "Sancteforge", stats: { for: 20, int: 10, pv: 10 }, ability: "Châtiment du mal" },
-                { name: "Tauren", stats: { for: 20, int: 10, pv: 13 }, ability: "Robustesse" },
-                { name: "Troll", stats: { for: 10, agi: 20, pv: 8 }, ability: "Régénération" },
-                { name: "Vulpérin", stats: { agi: 20, int: 10, pv: 6 }, ability: "Gros Sac TMP" },
-                { name: "Worgen", stats: { for: 20, int: 10, pv: 10 }, ability: "Sens aiguisés" }
-            ],
-            historiques: [
-                { name: "Assassin", stats: { agi: 20, int: 10 }, ability: "Empoisonneur" },
-                { name: "Eclaireur", stats: { for: 10, agi: 20 }, ability: "Vigilant" },
-                { name: "Erudit", stats: { agi: 10, int: 20 }, ability: "Savant" },
-                { name: "Mage de Bataille", stats: { for: 20, int: 10 }, ability: "Sort perçant" },
-                { name: "Milicien", stats: { for: 20, agi: 10, pv: 3 }, ability: "Robuste" },
-                { name: "Notable", stats: { for: 10, int: 20 }, ability: "Influence" }
-            ],
-            archetypes: [
-                { name: "Hybride", stats: { pv: 8, pe: 8, pm: 8 }, formations: 5, hasChoice: true, choices: [
-                    { label: "FOR", stats: { for: 20 } },
-                    { label: "AGI", stats: { agi: 20 } },
-                    { label: "INT", stats: { int: 20 } }
-                ]},
-                { name: "Martial", stats: { pv: 10, pe: 10, pm: 6 }, formations: 5, hasChoice: true, choices: [
-                    { label: "FOR", stats: { for: 20 } },
-                    { label: "AGI", stats: { agi: 20 } }
-                ]},
-                { name: "Mystique", stats: { int: 20, pv: 6, pe: 6, pm: 10 }, formations: 5 },
-                { name: "Savant", stats: { int: 20, pv: 6, pe: 10, pm: 6 }, formations: 7 }
-            ],
-            alignements: ["Chaos", "Lumière", "Mort", "Neutre", "Ordre", "Vide", "Vie"],
-            caracLibre: [
-                { name: "FOR", stats: { for: 20 } },
-                { name: "AGI", stats: { agi: 20 } },
-                { name: "INT", stats: { int: 20 } }
-            ],
-            formationsDisponibles: [
-                "Alchimie",
-                "Ambidextrie",
-                "Arc",
-                "Arbalète",
-                "Arme à feu",
-                "Arme d'Haste",
-                "Armes de pugilat",
-                "Armure intermédiaire",
-                "Armure légère",
-                "Armure lourde",
-                "Armure semi-lourde",
-                "Bâton",
-                "Calligraphie",
-                "Connaissance",
-                "Couture",
-                "Cuisine",
-                "Custom",
-                "Dagues",
-                "Dépeçage",
-                "Enchantement",
-                "Épée à deux mains",
-                "Épée à une main",
-                "Forge",
-                "Hache à deux mains",
-                "Hache à une main",
-                "Herboristerie",
-                "Joaillerie",
-                "Magie (Chaos)",
-                "Magie (Lumière)",
-                "Magie (Mort)",
-                "Magie (Ordre)",
-                "Magie (Ombre)",
-                "Magie (Vie)",
-                "Magie (Vide)",
-                "Masse à deux mains",
-                "Masse à une main",
-                "Médecine",
-                "Métier",
-                "Minage",
-                "Pêche",
-                "Travail du cuir"
-            ]
-        };
-
-        // État du personnage
-        let character = {
-            nom: "",
-            race: null,
-            raceChoice: null, // Pour le choix de stat des humains
-            age: "",
-            sexe: "",
-            classe: "", // Nouveau champ classe
-            historique: null,
-            archetype: null,
-            archetypeChoice: null, // Pour le choix de stat des Hybrides
-            alignement: "",
-            caracLibre: null,
-            stats: { for: 80, agi: 80, int: 80, pv: 0, pe: 0, pm: 0 },
-            formations: 0,
-            selectedFormations: [], // Formations sélectionnées par le joueur
-            image: null, // Image du personnage (base64)
-            imagePosition: { x: 0, y: 0, scale: 1 } // Position et zoom de l'image
-        };
-
-        // Étapes de création
-        const steps = [
-            { id: 1, name: "Identité", label: "Identité" },
-            { id: 2, name: "Race", label: "Race" },
-            { id: 3, name: "Historique", label: "Historique" },
-            { id: 4, name: "Archétype", label: "Archétype" },
-            { id: 5, name: "Alignement", label: "Alignement" },
-            { id: 6, name: "Caractéristique", label: "Bonus" },
-            { id: 7, name: "Formations", label: "Formations" },
-            { id: 8, name: "Récapitulatif", label: "Récap" }
-        ];
-
-        let currentStep = 1;
-
-        // Initialisation
-        function init() {
-            renderProgressBar();
-            renderStep();
-            renderCharacterSheet();
-        }
-
-        // Rendu de la barre de progression
-        function renderProgressBar() {
-            const progressBar = document.getElementById('progressBar');
-            const progressLine = document.getElementById('progressLine');
-            
-            let html = '<div class="progress-line" id="progressLine"></div>';
-            steps.forEach(step => {
-                const isActive = step.id === currentStep;
-                const isCompleted = step.id < currentStep;
-                html += `
-                    <div class="step-indicator ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}" 
-                         onclick="goToStep(${step.id})">
-                        <div class="step-circle">${isCompleted ? '✓' : step.id}</div>
-                        <div class="step-label">${step.label}</div>
-                    </div>
-                `;
-            });
-            
-            progressBar.innerHTML = html;
-            
-            const progress = ((currentStep - 1) / (steps.length - 1)) * 100;
-            document.getElementById('progressLine').style.width = `${progress}%`;
-        }
-
-        // Calcul des statistiques
-        function calculateStats() {
-            const stats = { for: 80, agi: 80, int: 80, pv: 0, pe: 3, pm: 3 };
-            let formations = 0;
-
-            if (character.race) {
-                Object.keys(character.race.stats).forEach(key => {
-                    stats[key] = (stats[key] || 0) + character.race.stats[key];
-                });
-                
-                // Si la race a un choix (comme Humain) et qu'un choix a été fait
-                if (character.race.hasChoice && character.raceChoice) {
-                    Object.keys(character.raceChoice.stats).forEach(key => {
-                        stats[key] = (stats[key] || 0) + character.raceChoice.stats[key];
-                    });
-                }
-                
-                // Polyvalence (Humain) : +2 formations
-                if (character.race.name === "Humain") {
-                    formations += 2;
-                }
-            }
-
-            if (character.historique) {
-                Object.keys(character.historique.stats).forEach(key => {
-                    stats[key] = (stats[key] || 0) + character.historique.stats[key];
-                });
-            }
-
-            if (character.archetype) {
-                Object.keys(character.archetype.stats).forEach(key => {
-                    stats[key] = (stats[key] || 0) + character.archetype.stats[key];
-                });
-                
-                // Si l'archétype a un choix (comme Hybride) et qu'un choix a été fait
-                if (character.archetype.hasChoice && character.archetypeChoice) {
-                    Object.keys(character.archetypeChoice.stats).forEach(key => {
-                        stats[key] = (stats[key] || 0) + character.archetypeChoice.stats[key];
-                    });
-                }
-                
-                // Ajouter les formations de l'archétype
-                formations += character.archetype.formations;
-            }
-
-            if (character.caracLibre) {
-                Object.keys(character.caracLibre.stats).forEach(key => {
-                    stats[key] = (stats[key] || 0) + character.caracLibre.stats[key];
-                });
-            }
-
-            // Bonus de PV/PE/PM basés sur les stats
-            if (character.archetype) {
-                stats.pv += Math.floor((stats.for - 80) / 20);
-                stats.pe += Math.floor((stats.agi - 80) / 20);
-                stats.pm += Math.floor((stats.int - 80) / 20);
-            }
-
-            character.stats = stats;
-            character.formations = formations;
-        }
-
-        // Rendu de la fiche personnage
-        function renderCharacterSheet() {
-            calculateStats();
-            
-            const sheet = document.getElementById('characterSheet');
-            
-            // Déterminer l'affichage de la race (avec choix pour Humain)
-            let raceDisplay = 'Non sélectionnée';
-            if (character.race) {
-                raceDisplay = character.race.name;
-                if (character.race.hasChoice && character.raceChoice) {
-                    raceDisplay += ` (${character.raceChoice.label})`;
-                }
-            }
-            
-            // Affichage de la classe/archétype
-            let classeArchetypeDisplay = 'Non sélectionné';
-            if (character.classe && character.archetype) {
-                let archetypeName = character.archetype.name;
-                if (character.archetype.hasChoice && character.archetypeChoice) {
-                    archetypeName += ` (${character.archetypeChoice.label})`;
-                }
-                classeArchetypeDisplay = `${character.classe} (${archetypeName})`;
-            } else if (character.archetype) {
-                let archetypeName = character.archetype.name;
-                if (character.archetype.hasChoice && character.archetypeChoice) {
-                    archetypeName += ` (${character.archetypeChoice.label})`;
-                }
-                classeArchetypeDisplay = archetypeName;
-            } else if (character.classe) {
-                classeArchetypeDisplay = character.classe;
-            }
-            
-            sheet.innerHTML = `
-                <h2 class="sheet-title">Votre Personnage</h2>
-                
-                <div class="sheet-section">
-                    <div class="sheet-label">Nom</div>
-                    <div class="sheet-value ${character.nom ? '' : 'empty'}">
-                        ${character.nom || 'Non défini'}
-                    </div>
-                </div>
-
-                <div class="sheet-section">
-                    <div class="sheet-label">Race</div>
-                    <div class="sheet-value ${character.race ? '' : 'empty'}">
-                        ${raceDisplay}
-                    </div>
-                </div>
-
-                <div class="sheet-section">
-                    <div class="sheet-label">Âge</div>
-                    <div class="sheet-value ${character.age ? '' : 'empty'}">
-                        ${character.age || 'Non défini'}
-                    </div>
-                </div>
-
-                <div class="sheet-section">
-                    <div class="sheet-label">Sexe</div>
-                    <div class="sheet-value ${character.sexe ? '' : 'empty'}">
-                        ${character.sexe || 'Non défini'}
-                    </div>
-                </div>
-
-                <div class="sheet-section">
-                    <div class="sheet-label">Historique</div>
-                    <div class="sheet-value ${character.historique ? '' : 'empty'}">
-                        ${character.historique ? character.historique.name : 'Non sélectionné'}
-                    </div>
-                </div>
-
-                <div class="sheet-section">
-                    <div class="sheet-label">Classe / Archétype</div>
-                    <div class="sheet-value ${character.classe || character.archetype ? '' : 'empty'}">
-                        ${classeArchetypeDisplay}
-                    </div>
-                </div>
-
-                <div class="sheet-section">
-                    <div class="sheet-label">Alignement</div>
-                    <div class="sheet-value ${character.alignement ? '' : 'empty'}">
-                        ${character.alignement || 'Non sélectionné'}
-                    </div>
-                </div>
-
-                <div class="stats-grid">
-                    <div class="stat-box">
-                        <div class="stat-name">Force</div>
-                        <div class="stat-value">${character.stats.for}</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-name">Agilité</div>
-                        <div class="stat-value">${character.stats.agi}</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-name">Intelligence</div>
-                        <div class="stat-value">${character.stats.int}</div>
-                    </div>
-                </div>
-
-                <div class="stats-grid">
-                    <div class="stat-box">
-                        <div class="stat-name">PV</div>
-                        <div class="stat-value">${character.stats.pv}</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-name">PE</div>
-                        <div class="stat-value">${character.stats.pe}</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-name">PM</div>
-                        <div class="stat-value">${character.stats.pm}</div>
-                    </div>
-                </div>
-
-                <div class="sheet-section" style="margin-top: 1rem;">
-                    <div class="sheet-label">Formations (${character.selectedFormations.length}/${character.formations})</div>
-                    <div class="sheet-value ${character.selectedFormations.length > 0 ? '' : 'empty'}">
-                        ${character.selectedFormations.length > 0 
-                            ? character.selectedFormations.map(f => typeof f === 'object' ? f.display : f).join(', ')
-                            : 'Aucune sélectionnée'}
-                    </div>
-                </div>
-            `;
-        }
-
-        // Rendu de l'étape actuelle
-        function renderStep() {
-            const content = document.getElementById('stepContent');
-            
-            switch(currentStep) {
-                case 1:
-                    content.innerHTML = `
-                        <h2 class="step-title">⚔️ Identité</h2>
-                        <p class="step-description">Commencez par définir l'identité de votre personnage.</p>
-                        
-                        <div style="display: grid; grid-template-columns: 1fr 350px; gap: 2rem; margin-bottom: 2rem;">
-                            <div>
-                                <div class="input-group">
-                                    <label class="input-label">Nom du personnage</label>
-                                    <input type="text" class="text-input" id="nomInput" 
-                                           value="${character.nom}" placeholder="Entrez le nom...">
-                                </div>
-
-                                <div class="input-group">
-                                    <label class="input-label">Âge</label>
-                                    <input type="text" class="text-input" id="ageInput" 
-                                           value="${character.age}" placeholder="Entrez l'âge...">
-                                </div>
-
-                                <div class="input-group">
-                                    <label class="input-label">Sexe</label>
-                                    <input type="text" class="text-input" id="sexeInput" 
-                                           value="${character.sexe}" placeholder="Masculin / Féminin / Autre...">
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label class="input-label">Avatar du personnage</label>
-                                <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 1rem;">Glissez pour positionner • Molette pour zoomer</p>
-                                
-                                <div style="position: relative; width: 250px; height: 250px; margin: 0 auto;">
-                                    <canvas id="imageCanvas" width="250" height="250" 
-                                            style="border: 3px solid var(--primary); border-radius: 50%; cursor: move; background: rgba(30, 45, 63, 0.5); display: block;"></canvas>
-                                    <input type="file" id="imageInput" accept="image/*" style="display: none;">
-                                    <button type="button" onclick="document.getElementById('imageInput').click()" 
-                                            style="position: absolute; bottom: 10px; right: 10px; width: 40px; height: 40px; border-radius: 50%; background: var(--primary); border: none; color: var(--secondary); font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-                                        📷
-                                    </button>
-                                    ${character.image ? `
-                                        <button type="button" onclick="removeImage()" 
-                                                style="position: absolute; top: 10px; right: 10px; width: 35px; height: 35px; border-radius: 50%; background: var(--danger); border: none; color: white; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-                                            ✕
-                                        </button>
-                                    ` : ''}
-                                </div>
-                                
-                                <div style="text-align: center; margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: center;">
-                                    <button type="button" class="btn btn-secondary" onclick="zoomImage(-0.1)" style="padding: 0.5rem 1rem;">−</button>
-                                    <button type="button" class="btn btn-secondary" onclick="zoomImage(0.1)" style="padding: 0.5rem 1rem;">+</button>
-                                    <button type="button" class="btn btn-secondary" onclick="resetImagePosition()" style="padding: 0.5rem 1rem;">↻</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="action-buttons">
-                            <button class="btn btn-secondary" onclick="prevStep()" style="visibility: hidden;">Précédent</button>
-                            <button class="btn btn-primary" onclick="saveIdentity(); nextStep();">Suivant</button>
-                        </div>
-                    `;
-                    
-                    // Initialiser le canvas après un court délai
-                    setTimeout(() => {
-                        try {
-                            initImageCanvas();
-                        } catch (error) {
-                            console.error('Erreur canvas:', error);
-                        }
-                    }, 50);
-                    break;
-
-                case 2:
-                    // Vérifier si on affiche la sélection de race ou le sous-choix pour Humain
-                    if (character.race?.hasChoice && !character.raceChoice) {
-                        // Affichage du sous-choix pour Humain
-                        content.innerHTML = `
-                            <h2 class="step-title">🛡️ Race - Bonus Humain</h2>
-                            <p class="step-description">En tant qu'Humain, choisissez quelle caractéristique vous souhaitez améliorer.</p>
-                            
-                            <div class="options-grid">
-                                ${character.race.choices.map(choice => `
-                                    <div class="option-card" onclick="selectRaceChoice('${choice.label}')">
-                                        <div class="option-name">${choice.label === 'FOR' ? 'Force' : choice.label === 'AGI' ? 'Agilité' : 'Intelligence'}</div>
-                                        <div class="option-stats">
-                                            ${choice.stats.for ? `<span class="stat-badge">FOR +${choice.stats.for}</span>` : ''}
-                                            ${choice.stats.agi ? `<span class="stat-badge">AGI +${choice.stats.agi}</span>` : ''}
-                                            ${choice.stats.int ? `<span class="stat-badge">INT +${choice.stats.int}</span>` : ''}
-                                            ${choice.stats.pv ? `<span class="stat-badge">PV +${choice.stats.pv}</span>` : ''}
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-
-                            <div class="action-buttons">
-                                <button class="btn btn-secondary" onclick="character.race = null; renderStep();">Retour</button>
-                                <button class="btn btn-primary" onclick="nextStep()" disabled>Suivant</button>
-                            </div>
-                        `;
-                    } else {
-                        // Affichage normal de la sélection de race
-                        content.innerHTML = `
-                            <h2 class="step-title">🛡️ Race</h2>
-                            <p class="step-description">Choisissez la race de votre personnage. Chaque race offre des bonus uniques.</p>
-                            
-                            <div class="options-grid">
-                                ${gameData.races.map(race => {
-                                    const isSelected = character.race?.name === race.name && (!race.hasChoice || character.raceChoice);
-                                    return `
-                                        <div class="option-card ${isSelected ? 'selected' : ''}" 
-                                             onclick="selectRace('${race.name}')">
-                                            <div class="option-name">${race.name}</div>
-                                            <div class="option-stats">
-                                                ${race.stats.for ? `<span class="stat-badge">FOR +${race.stats.for}</span>` : ''}
-                                                ${race.stats.agi ? `<span class="stat-badge">AGI +${race.stats.agi}</span>` : ''}
-                                                ${race.stats.int ? `<span class="stat-badge">INT +${race.stats.int}</span>` : ''}
-                                                ${race.stats.pv ? `<span class="stat-badge">PV +${race.stats.pv}</span>` : ''}
-                                                ${race.stats.pm ? `<span class="stat-badge">PM +${race.stats.pm}</span>` : ''}
-                                                ${race.hasChoice ? `<span class="stat-badge">+20 au choix</span>` : ''}
-                                            </div>
-                                            <div class="option-ability">${race.ability}</div>
-                                        </div>
-                                    `;
-                                }).join('')}
-                            </div>
-
-                            <div class="action-buttons">
-                                <button class="btn btn-secondary" onclick="prevStep()">Précédent</button>
-                                <button class="btn btn-primary" onclick="nextStep()" ${!character.race || (character.race.hasChoice && !character.raceChoice) ? 'disabled' : ''}>Suivant</button>
-                            </div>
-                        `;
-                    }
-                    break;
-
-                case 3:
-                    content.innerHTML = `
-                        <h2 class="step-title">📜 Historique</h2>
-                        <p class="step-description">Sélectionnez l'historique qui définit le passé de votre personnage.</p>
-                        
-                        <div class="options-grid">
-                            ${gameData.historiques.map(hist => `
-                                <div class="option-card ${character.historique?.name === hist.name ? 'selected' : ''}" 
-                                     onclick="selectHistorique('${hist.name}')">
-                                    <div class="option-name">${hist.name}</div>
-                                    <div class="option-stats">
-                                        ${hist.stats.for ? `<span class="stat-badge">FOR +${hist.stats.for}</span>` : ''}
-                                        ${hist.stats.agi ? `<span class="stat-badge">AGI +${hist.stats.agi}</span>` : ''}
-                                        ${hist.stats.int ? `<span class="stat-badge">INT +${hist.stats.int}</span>` : ''}
-                                        ${hist.stats.pv ? `<span class="stat-badge">PV +${hist.stats.pv}</span>` : ''}
-                                    </div>
-                                    <div class="option-ability">${hist.ability}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-
-                        <div class="action-buttons">
-                            <button class="btn btn-secondary" onclick="prevStep()">Précédent</button>
-                            <button class="btn btn-primary" onclick="nextStep()" ${!character.historique ? 'disabled' : ''}>Suivant</button>
-                        </div>
-                    `;
-                    break;
-
-                case 4:
-                    // Vérifier si on affiche la sélection d'archétype ou le sous-choix pour Hybride/Martial
-                    if (character.archetype?.hasChoice && !character.archetypeChoice) {
-                        // Affichage du sous-choix pour Hybride ou Martial
-                        content.innerHTML = `
-                            <h2 class="step-title">⚡ Classe & Archétype - Bonus ${character.archetype.name}</h2>
-                            <p class="step-description">En tant que ${character.archetype.name}, choisissez quelle caractéristique vous souhaitez améliorer.</p>
-                            
-                            <div class="options-grid">
-                                ${character.archetype.choices.map(choice => `
-                                    <div class="option-card" onclick="selectArchetypeChoice('${choice.label}')">
-                                        <div class="option-name">${choice.label === 'FOR' ? 'Force' : choice.label === 'AGI' ? 'Agilité' : 'Intelligence'}</div>
-                                        <div class="option-stats">
-                                            ${choice.stats.for ? `<span class="stat-badge">FOR +${choice.stats.for}</span>` : ''}
-                                            ${choice.stats.agi ? `<span class="stat-badge">AGI +${choice.stats.agi}</span>` : ''}
-                                            ${choice.stats.int ? `<span class="stat-badge">INT +${choice.stats.int}</span>` : ''}
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-
-                            <div class="action-buttons">
-                                <button class="btn btn-secondary" onclick="character.archetype = null; character.classe = ''; renderStep();">Retour</button>
-                                <button class="btn btn-primary" onclick="nextStep()" disabled>Suivant</button>
-                            </div>
-                        `;
-                    } else {
-                        // Affichage normal de la sélection d'archétype
-                        content.innerHTML = `
-                            <h2 class="step-title">⚡ Classe & Archétype</h2>
-                            <p class="step-description">Nommez votre classe, puis choisissez votre archétype qui définit votre style de combat et vos capacités.</p>
-                            
-                            <div class="input-group">
-                                <label class="input-label">Nom de la classe</label>
-                                <input type="text" class="text-input" id="classeInput" 
-                                       value="${character.classe}" placeholder="Ex: Guerrier, Mage, Paladin...">
-                            </div>
-
-                            <h3 style="font-family: 'Cinzel', serif; color: var(--primary); margin: 2rem 0 1rem;">Archétype</h3>
-                            
-                            <div class="options-grid">
-                                ${gameData.archetypes.map(arch => {
-                                    const isSelected = character.archetype?.name === arch.name && (!arch.hasChoice || character.archetypeChoice);
-                                    return `
-                                        <div class="option-card ${isSelected ? 'selected' : ''}" 
-                                             onclick="selectArchetype('${arch.name}')">
-                                            <div class="option-name">${arch.name}</div>
-                                            <div class="option-stats">
-                                                ${arch.stats.for ? `<span class="stat-badge">FOR +${arch.stats.for}</span>` : ''}
-                                                ${arch.stats.agi ? `<span class="stat-badge">AGI +${arch.stats.agi}</span>` : ''}
-                                                ${arch.stats.int ? `<span class="stat-badge">INT +${arch.stats.int}</span>` : ''}
-                                                ${arch.stats.pv ? `<span class="stat-badge">PV +${arch.stats.pv}</span>` : ''}
-                                                ${arch.stats.pe ? `<span class="stat-badge">PE +${arch.stats.pe}</span>` : ''}
-                                                ${arch.stats.pm ? `<span class="stat-badge">PM +${arch.stats.pm}</span>` : ''}
-                                                ${arch.hasChoice ? `<span class="stat-badge">+20 au choix</span>` : ''}
-                                            </div>
-                                            <div class="option-ability">
-                                                <strong>${arch.formations}</strong> formations
-                                                ${arch.name === 'Savant' ? ' (+2 bonus)' : ''}
-                                            </div>
-                                        </div>
-                                    `;
-                                }).join('')}
-                            </div>
-
-                            <div class="action-buttons">
-                                <button class="btn btn-secondary" onclick="prevStep()">Précédent</button>
-                                <button class="btn btn-primary" onclick="saveClasse(); nextStep();" ${!character.archetype || (character.archetype.hasChoice && !character.archetypeChoice) ? 'disabled' : ''}>Suivant</button>
-                            </div>
-                        `;
-                    }
-                    break;
-
-                case 5:
-                    content.innerHTML = `
-                        <h2 class="step-title">☯️ Alignement</h2>
-                        <p class="step-description">Sélectionnez l'alignement cosmique de votre personnage.</p>
-                        
-                        <div class="options-grid">
-                            ${gameData.alignements.map(align => `
-                                <div class="option-card ${character.alignement === align ? 'selected' : ''}" 
-                                     onclick="selectAlignement('${align}')">
-                                    <div class="option-name">${align}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-
-                        <div class="action-buttons">
-                            <button class="btn btn-secondary" onclick="prevStep()">Précédent</button>
-                            <button class="btn btn-primary" onclick="nextStep()" ${!character.alignement ? 'disabled' : ''}>Suivant</button>
-                        </div>
-                    `;
-                    break;
-
-                case 6:
-                    content.innerHTML = `
-                        <h2 class="step-title">⭐ Caractéristique libre</h2>
-                        <p class="step-description">Choisissez une caractéristique à améliorer avec un bonus supplémentaire.</p>
-                        
-                        <div class="options-grid">
-                            ${gameData.caracLibre.map(carac => `
-                                <div class="option-card ${character.caracLibre?.name === carac.name ? 'selected' : ''}" 
-                                     onclick="selectCaracLibre('${carac.name}')">
-                                    <div class="option-name">${carac.name === 'FOR' ? 'Force' : carac.name === 'AGI' ? 'Agilité' : 'Intelligence'}</div>
-                                    <div class="option-stats">
-                                        <span class="stat-badge">+20 points</span>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-
-                        <div class="action-buttons">
-                            <button class="btn btn-secondary" onclick="prevStep()">Précédent</button>
-                            <button class="btn btn-primary" onclick="nextStep()" ${!character.caracLibre ? 'disabled' : ''}>Suivant</button>
-                        </div>
-                    `;
-                    break;
-
-                case 7:
-                    const formationsRestantes = character.formations - character.selectedFormations.length;
-                    
-                    content.innerHTML = `
-                        <h2 class="step-title">📚 Formations</h2>
-                        <p class="step-description">Choisissez vos formations. Vous pouvez en sélectionner <strong>${character.formations}</strong>.</p>
-                        
-                        <div style="background: rgba(200, 155, 60, 0.15); padding: 1rem; border-radius: 12px; margin-bottom: 2rem; text-align: center; border: 2px solid rgba(200, 155, 60, 0.3);">
-                            <div style="font-size: 1.5rem; color: var(--accent); font-family: 'Cinzel', serif;">
-                                <strong>${character.selectedFormations.length}</strong> / ${character.formations} formations sélectionnées
-                            </div>
-                            ${formationsRestantes > 0 ? `<div style="margin-top: 0.5rem; opacity: 0.8;">Encore ${formationsRestantes} à choisir</div>` : ''}
-                        </div>
-
-                        <div class="options-grid">
-                            ${gameData.formationsDisponibles.map((formation, idx) => {
-                                // Formations spéciales qui peuvent être sélectionnées plusieurs fois
-                                const multiSelectFormations = ['Custom', 'Métier', 'Connaissance'];
-                                const isMultiSelect = multiSelectFormations.includes(formation);
-                                
-                                // Pour les formations normales, vérifier si sélectionnée
-                                const isSelected = !isMultiSelect && character.selectedFormations.some(f => 
-                                    f === formation || (typeof f === 'object' && f.base === formation)
-                                );
-                                
-                                // On peut cliquer si: multi-select et espace dispo, OU déjà sélectionné (pour désélectionner), OU pas sélectionné et espace dispo
-                                const canClick = (isMultiSelect && formationsRestantes > 0) || isSelected || (!isSelected && formationsRestantes > 0);
-                                const shouldDisable = !canClick;
-                                
-                                return `
-                                    <div class="option-card ${isSelected ? 'selected' : ''} ${shouldDisable ? 'disabled' : ''}" 
-                                         data-formation-idx="${idx}"
-                                         ${canClick ? `onclick="toggleFormationByIndex(${idx})"` : ''}>
-                                        <div class="option-name">${formation}</div>
-                                        ${isMultiSelect ? 
-                                            '<div class="option-ability" style="font-size: 0.85rem; opacity: 0.7;">Peut être choisi plusieurs fois</div>' : 
-                                            ''}
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-
-                        ${character.selectedFormations.length > 0 ? `
-                            <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(30, 45, 63, 0.5); border-radius: 12px; border: 1px solid rgba(200, 155, 60, 0.2);">
-                                <h3 style="font-family: 'Cinzel', serif; color: var(--primary); margin-bottom: 1rem;">Vos formations :</h3>
-                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                                    ${character.selectedFormations.map((f, index) => {
-                                        const displayName = typeof f === 'object' ? f.display : f;
-                                        return `
-                                            <span class="stat-badge" style="cursor: pointer;" onclick="removeFormation(${index})">
-                                                ${displayName} ✕
-                                            </span>
-                                        `;
-                                    }).join('')}
-                                </div>
-                            </div>
-                        ` : ''}
-
-                        <div class="action-buttons">
-                            <button class="btn btn-secondary" onclick="prevStep()">Précédent</button>
-                            <button class="btn btn-primary" onclick="nextStep()" ${character.selectedFormations.length !== character.formations ? 'disabled' : ''}>Suivant</button>
-                        </div>
-                    `;
-                    break;
-
-                case 8:
-                    const raceDisplayFinal = character.race.hasChoice && character.raceChoice 
-                        ? `${character.race.name} (${character.raceChoice.label})` 
-                        : character.race?.name;
-                    
-                    let archetypeFinal = character.archetype?.name;
-                    if (character.archetype?.hasChoice && character.archetypeChoice) {
-                        archetypeFinal += ` (${character.archetypeChoice.label})`;
-                    }
-                    
-                    const classeArchetypeFinal = character.classe 
-                        ? `${character.classe} (${archetypeFinal})` 
-                        : archetypeFinal;
-                    
-                    content.innerHTML = `
-                        <div class="final-sheet">
-                            <h2 class="final-title">✨ ${character.nom || 'Votre personnage'}</h2>
-                            
-                            <div class="final-stats">
-                                <div class="sheet-section">
-                                    <div class="sheet-label">Race</div>
-                                    <div class="sheet-value">${raceDisplayFinal}</div>
-                                </div>
-
-                                <div class="sheet-section">
-                                    <div class="sheet-label">Âge</div>
-                                    <div class="sheet-value">${character.age}</div>
-                                </div>
-
-                                <div class="sheet-section">
-                                    <div class="sheet-label">Sexe</div>
-                                    <div class="sheet-value">${character.sexe}</div>
-                                </div>
-
-                                <div class="sheet-section">
-                                    <div class="sheet-label">Historique</div>
-                                    <div class="sheet-value">${character.historique?.name}</div>
-                                </div>
-
-                                <div class="sheet-section">
-                                    <div class="sheet-label">Classe / Archétype</div>
-                                    <div class="sheet-value">${classeArchetypeFinal}</div>
-                                </div>
-
-                                <div class="sheet-section">
-                                    <div class="sheet-label">Alignement</div>
-                                    <div class="sheet-value">${character.alignement}</div>
-                                </div>
-
-                                <div class="sheet-section">
-                                    <div class="sheet-label">Bonus libre</div>
-                                    <div class="sheet-value">${character.caracLibre?.name}</div>
-                                </div>
-                            </div>
-
-                            <div class="stats-grid" style="margin-top: 2rem;">
-                                <div class="stat-box">
-                                    <div class="stat-name">Force</div>
-                                    <div class="stat-value">${character.stats.for}</div>
-                                </div>
-                                <div class="stat-box">
-                                    <div class="stat-name">Agilité</div>
-                                    <div class="stat-value">${character.stats.agi}</div>
-                                </div>
-                                <div class="stat-box">
-                                    <div class="stat-name">Intelligence</div>
-                                    <div class="stat-value">${character.stats.int}</div>
-                                </div>
-                                <div class="stat-box">
-                                    <div class="stat-name">Points de Vie</div>
-                                    <div class="stat-value">${character.stats.pv}</div>
-                                </div>
-                                <div class="stat-box">
-                                    <div class="stat-name">Points d'Endurance</div>
-                                    <div class="stat-value">${character.stats.pe}</div>
-                                </div>
-                                <div class="stat-box">
-                                    <div class="stat-name">Points de Magie</div>
-                                    <div class="stat-value">${character.stats.pm}</div>
-                                </div>
-                                <div class="stat-box">
-                                    <div class="stat-name">Formations</div>
-                                    <div class="stat-value">${character.formations}</div>
-                                </div>
-                            </div>
-
-                            <div style="margin-top: 2rem;">
-                                <h3 style="color: var(--primary); margin-bottom: 1rem;">Capacités Spéciales</h3>
-                                <div class="option-ability">
-                                    <strong>Race:</strong> ${character.race?.ability}<br>
-                                    <strong>Historique:</strong> ${character.historique?.ability}
-                                </div>
-                            </div>
-
-                            <div style="margin-top: 2rem;">
-                                <h3 style="color: var(--primary); margin-bottom: 1rem;">Formations (${character.selectedFormations.length})</h3>
-                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                                    ${character.selectedFormations.map(f => {
-                                        const displayName = typeof f === 'object' ? f.display : f;
-                                        return `<span class="stat-badge">${displayName}</span>`;
-                                    }).join('')}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="action-buttons" style="margin-top: 2rem;">
-                            <button class="btn btn-secondary" onclick="prevStep()">Précédent</button>
-                            <button class="btn btn-primary" onclick="downloadCharacterPNG()">Télécharger PNG</button>
-                            <button class="btn btn-secondary" onclick="downloadCharacter()">Télécharger JSON</button>
-                        </div>
-                    `;
-                    break;
-            }
-        }
-
-        // Fonctions de sélection
-        function saveIdentity() {
-            character.nom = document.getElementById('nomInput').value;
-            character.age = document.getElementById('ageInput').value;
-            character.sexe = document.getElementById('sexeInput').value;
-            renderCharacterSheet();
-        }
-
-        function selectRace(name) {
-            const race = gameData.races.find(r => r.name === name);
-            character.race = race;
-            
-            // Si la race a un choix (comme Humain), afficher l'étape de sous-choix
-            if (race.hasChoice) {
-                character.raceChoice = null; // Réinitialiser le choix
-                renderStep();
-            } else {
-                renderStep();
-                renderCharacterSheet();
-            }
-        }
-
-        function selectRaceChoice(label) {
-            if (character.race && character.race.hasChoice) {
-                character.raceChoice = character.race.choices.find(c => c.label === label);
-                renderCharacterSheet();
-                // Passer automatiquement à l'étape suivante
-                nextStep();
-            }
-        }
-
-        function selectHistorique(name) {
-            character.historique = gameData.historiques.find(h => h.name === name);
-            renderStep();
-            renderCharacterSheet();
-        }
-
-        function saveClasse() {
-            const classeInput = document.getElementById('classeInput');
-            if (classeInput) {
-                character.classe = classeInput.value;
-            }
-            renderCharacterSheet();
-        }
-
-        function selectArchetype(name) {
-            const archetype = gameData.archetypes.find(a => a.name === name);
-            character.archetype = archetype;
-            
-            // Si l'archétype a un choix (comme Hybride), afficher l'étape de sous-choix
-            if (archetype.hasChoice) {
-                character.archetypeChoice = null; // Réinitialiser le choix
-                renderStep();
-            } else {
-                renderStep();
-                renderCharacterSheet();
-            }
-        }
-
-        function selectArchetypeChoice(label) {
-            if (character.archetype && character.archetype.hasChoice) {
-                character.archetypeChoice = character.archetype.choices.find(c => c.label === label);
-                renderCharacterSheet();
-                // Passer automatiquement à l'étape suivante
-                nextStep();
-            }
-        }
-
-        function selectAlignement(name) {
-            character.alignement = name;
-            renderStep();
-            renderCharacterSheet();
-        }
-
-        function selectCaracLibre(name) {
-            character.caracLibre = gameData.caracLibre.find(c => c.name === name);
-            renderStep();
-            renderCharacterSheet();
-        }
-
-        // Gestion des formations
-        function toggleFormationByIndex(idx) {
-            const formation = gameData.formationsDisponibles[idx];
-            toggleFormation(formation);
-        }
-
-        function toggleFormation(formation) {
-            const formationsRestantes = character.formations - character.selectedFormations.length;
-            
-            // Formations spéciales qui peuvent être sélectionnées plusieurs fois
-            const multiSelectFormations = ['Custom', 'Métier', 'Connaissance'];
-            const isMultiSelect = multiSelectFormations.includes(formation);
-            
-            // Pour les formations normales, vérifier si déjà sélectionnée
-            if (!isMultiSelect) {
-                const existingIndex = character.selectedFormations.findIndex(f => 
-                    f === formation || (typeof f === 'object' && f.base === formation)
-                );
-                
-                if (existingIndex !== -1) {
-                    // Désélectionner
-                    character.selectedFormations.splice(existingIndex, 1);
-                    renderStep();
-                    renderCharacterSheet();
-                    return;
-                }
-            }
-            
-            // Sélectionner si on a encore de l'espace
-            if (formationsRestantes > 0) {
-                if (formation === 'Métier') {
-                    const metier = prompt('Précisez le métier :');
-                    if (metier && metier.trim()) {
-                        character.selectedFormations.push({
-                            base: 'Métier',
-                            display: `Métier (${metier.trim()})`
-                        });
-                    }
-                } else if (formation === 'Connaissance') {
-                    const connaissance = prompt('Domaine de connaissance :');
-                    if (connaissance && connaissance.trim()) {
-                        character.selectedFormations.push({
-                            base: 'Connaissance',
-                            display: `Connaissance (${connaissance.trim()})`
-                        });
-                    }
-                } else if (formation === 'Custom') {
-                    const custom = prompt('Nom de la formation personnalisée :');
-                    if (custom && custom.trim()) {
-                        character.selectedFormations.push({
-                            base: 'Custom',
-                            display: custom.trim()
-                        });
-                    }
-                } else {
-                    character.selectedFormations.push(formation);
-                }
-                renderStep();
-                renderCharacterSheet();
-            }
-        }
-
-        function removeFormation(index) {
-            character.selectedFormations.splice(index, 1);
-            renderStep();
-            renderCharacterSheet();
-        }
-
-        // Navigation
-        function nextStep() {
-            if (currentStep < steps.length) {
-                currentStep++;
-                renderProgressBar();
-                renderStep();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        }
-
-        function prevStep() {
-            if (currentStep > 1) {
-                currentStep--;
-                renderProgressBar();
-                renderStep();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        }
-
-        function goToStep(stepId) {
-            // Permettre la navigation libre si le personnage a été complété (a toutes les infos de base)
-            const isCharacterLoaded = character.race && character.historique && character.archetype && character.alignement && character.caracLibre;
-            
-            if (isCharacterLoaded || stepId <= currentStep || stepId === currentStep + 1) {
-                currentStep = stepId;
-                renderProgressBar();
-                renderStep();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        }
-
-        // Téléchargement (simplifié pour la démo)
-        function downloadCharacter() {
-            const data = JSON.stringify(character, null, 2);
-            const blob = new Blob([data], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${character.nom || 'personnage'}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        // Chargement d'un personnage depuis JSON
-        function loadCharacterFromJson(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const loadedData = JSON.parse(e.target.result);
-                    
-                    // Valider que c'est bien un personnage
-                    if (!loadedData.nom && !loadedData.race) {
-                        alert('Ce fichier ne semble pas être un personnage valide.');
-                        return;
-                    }
-
-                    // Reconstruire les objets avec les références correctes depuis gameData
-                    character.nom = loadedData.nom || '';
-                    character.age = loadedData.age || '';
-                    character.sexe = loadedData.sexe || '';
-                    character.classe = loadedData.classe || '';
-                    character.alignement = loadedData.alignement || '';
-                    
-                    // Charger la race
-                    if (loadedData.race) {
-                        character.race = gameData.races.find(r => r.name === loadedData.race.name);
-                        if (loadedData.raceChoice) {
-                            character.raceChoice = character.race?.choices?.find(c => c.label === loadedData.raceChoice.label);
-                        }
-                    }
-                    
-                    // Charger l'historique
-                    if (loadedData.historique) {
-                        character.historique = gameData.historiques.find(h => h.name === loadedData.historique.name);
-                    }
-                    
-                    // Charger l'archétype
-                    if (loadedData.archetype) {
-                        character.archetype = gameData.archetypes.find(a => a.name === loadedData.archetype.name);
-                        if (loadedData.archetypeChoice) {
-                            character.archetypeChoice = character.archetype?.choices?.find(c => c.label === loadedData.archetypeChoice.label);
-                        }
-                    }
-                    
-                    // Charger la caractéristique libre
-                    if (loadedData.caracLibre) {
-                        character.caracLibre = gameData.caracLibre.find(c => c.name === loadedData.caracLibre.name);
-                    }
-                    
-                    // Charger les formations
-                    character.selectedFormations = loadedData.selectedFormations || [];
-                    
-                    // Charger l'image et sa position
-                    character.image = loadedData.image || null;
-                    character.imagePosition = loadedData.imagePosition || { x: 0, y: 0, scale: 1 };
-                    
-                    // Aller directement au récapitulatif
-                    currentStep = 8;
-                    renderProgressBar();
-                    renderStep();
-                    renderCharacterSheet();
-                    
-                    // Message de confirmation
-                    alert(`Personnage "${character.nom || 'Sans nom'}" chargé avec succès ! Vous pouvez maintenant modifier les étapes en cliquant sur la barre de progression.`);
-                    
-                } catch (error) {
-                    console.error('Erreur lors du chargement:', error);
-                    alert('Erreur lors du chargement du fichier. Assurez-vous qu\'il s\'agit d\'un fichier JSON valide.');
-                }
-            };
-            
-            reader.readAsText(file);
-            
-            // Réinitialiser l'input pour permettre de charger le même fichier deux fois
-            event.target.value = '';
-        }
-
-        // Téléchargement PNG
-        async function downloadCharacterPNG() {
-            // Créer un élément temporaire pour la capture
-            const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'absolute';
-            tempDiv.style.left = '-9999px';
-            tempDiv.style.width = '800px';
-            tempDiv.style.background = 'linear-gradient(135deg, #0a1428 0%, #0d1b2a 50%, #0f1923 100%)';
-            tempDiv.style.padding = '40px';
-            tempDiv.style.fontFamily = "'Crimson Pro', serif";
-            tempDiv.style.color = '#e8dcc4';
-            tempDiv.style.borderRadius = '20px';
-            tempDiv.style.border = '2px solid #c89b3c';
-            
-            const raceDisplayFinal = character.race.hasChoice && character.raceChoice 
-                ? `${character.race.name} (${character.raceChoice.label})` 
-                : character.race?.name;
-            
-            let archetypeFinal = character.archetype?.name;
-            if (character.archetype?.hasChoice && character.archetypeChoice) {
-                archetypeFinal += ` (${character.archetypeChoice.label})`;
-            }
-            
-            const classeArchetypeFinal = character.classe 
-                ? `${character.classe} (${archetypeFinal})` 
-                : archetypeFinal;
-            
-            const formationsList = character.selectedFormations
-                .map(f => typeof f === 'object' ? f.display : f)
-                .join(', ');
-            
-            tempDiv.innerHTML = `
-                ${character.image ? `
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        <div style="width: 180px; height: 180px; margin: 0 auto; border-radius: 50%; overflow: hidden; border: 5px solid #c89b3c; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5); position: relative;">
-                            <canvas id="pngImageCanvas" width="180" height="180" style="display: block;"></canvas>
-                        </div>
-                    </div>
-                ` : ''}
-                
-                <div style="background: linear-gradient(135deg, #c89b3c 0%, #e4ae39 50%, #c89b3c 100%); padding: 25px 40px; border-radius: 15px; margin-bottom: 30px; text-align: center;">
-                    <h1 style="font-family: 'Cinzel', serif; font-size: 3rem; color: #0a1428; margin: 0; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); font-weight: 700;">
-                        ${character.nom || 'Personnage'}
-                    </h1>
-                </div>
-                
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <div style="font-size: 1rem; opacity: 0.8; letter-spacing: 0.2em; text-transform: uppercase; color: #e8dcc4;">
-                        Comté de Clairebois
-                    </div>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
-                    <div style="background: rgba(200, 155, 60, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #c89b3c;">
-                        <div style="font-size: 0.8rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 5px;">Race</div>
-                        <div style="font-size: 1.2rem; color: #c89b3c; font-weight: 600;">${raceDisplayFinal}</div>
-                    </div>
-                    
-                    <div style="background: rgba(200, 155, 60, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #c89b3c;">
-                        <div style="font-size: 0.8rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 5px;">Âge</div>
-                        <div style="font-size: 1.2rem; color: #c89b3c; font-weight: 600;">${character.age}</div>
-                    </div>
-                    
-                    <div style="background: rgba(200, 155, 60, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #c89b3c;">
-                        <div style="font-size: 0.8rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 5px;">Sexe</div>
-                        <div style="font-size: 1.2rem; color: #c89b3c; font-weight: 600;">${character.sexe}</div>
-                    </div>
-                    
-                    <div style="background: rgba(200, 155, 60, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #c89b3c;">
-                        <div style="font-size: 0.8rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 5px;">Historique</div>
-                        <div style="font-size: 1.2rem; color: #c89b3c; font-weight: 600;">${character.historique?.name}</div>
-                    </div>
-                    
-                    <div style="background: rgba(200, 155, 60, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #c89b3c;">
-                        <div style="font-size: 0.8rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 5px;">Classe / Archétype</div>
-                        <div style="font-size: 1.2rem; color: #c89b3c; font-weight: 600;">${classeArchetypeFinal}</div>
-                    </div>
-                    
-                    <div style="background: rgba(200, 155, 60, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #c89b3c;">
-                        <div style="font-size: 0.8rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 5px;">Alignement</div>
-                        <div style="font-size: 1.2rem; color: #c89b3c; font-weight: 600;">${character.alignement}</div>
-                    </div>
-                    
-                    <div style="background: rgba(200, 155, 60, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #c89b3c;">
-                        <div style="font-size: 0.8rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 5px;">Bonus libre</div>
-                        <div style="font-size: 1.2rem; color: #c89b3c; font-weight: 600;">${character.caracLibre?.name}</div>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 30px;">
-                    <h3 style="font-family: 'Cinzel', serif; color: #e4ae39; margin-bottom: 15px; font-size: 1.3rem;">Caractéristiques</h3>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
-                        <div style="text-align: center; background: rgba(200, 155, 60, 0.15); padding: 15px; border-radius: 10px;">
-                            <div style="font-size: 0.8rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 5px;">Force</div>
-                            <div style="font-family: 'Cinzel', serif; font-size: 2rem; color: #e4ae39; font-weight: 700;">${character.stats.for}</div>
-                        </div>
-                        <div style="text-align: center; background: rgba(200, 155, 60, 0.15); padding: 15px; border-radius: 10px;">
-                            <div style="font-size: 0.8rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 5px;">Agilité</div>
-                            <div style="font-family: 'Cinzel', serif; font-size: 2rem; color: #e4ae39; font-weight: 700;">${character.stats.agi}</div>
-                        </div>
-                        <div style="text-align: center; background: rgba(200, 155, 60, 0.15); padding: 15px; border-radius: 10px;">
-                            <div style="font-size: 0.8rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 5px;">Intelligence</div>
-                            <div style="font-family: 'Cinzel', serif; font-size: 2rem; color: #e4ae39; font-weight: 700;">${character.stats.int}</div>
-                        </div>
-                        <div style="text-align: center; background: rgba(200, 155, 60, 0.15); padding: 15px; border-radius: 10px;">
-                            <div style="font-size: 0.8rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 5px;">PV</div>
-                            <div style="font-family: 'Cinzel', serif; font-size: 2rem; color: #e4ae39; font-weight: 700;">${character.stats.pv}</div>
-                        </div>
-                        <div style="text-align: center; background: rgba(200, 155, 60, 0.15); padding: 15px; border-radius: 10px;">
-                            <div style="font-size: 0.8rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 5px;">PE</div>
-                            <div style="font-family: 'Cinzel', serif; font-size: 2rem; color: #e4ae39; font-weight: 700;">${character.stats.pe}</div>
-                        </div>
-                        <div style="text-align: center; background: rgba(200, 155, 60, 0.15); padding: 15px; border-radius: 10px;">
-                            <div style="font-size: 0.8rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 5px;">PM</div>
-                            <div style="font-family: 'Cinzel', serif; font-size: 2rem; color: #e4ae39; font-weight: 700;">${character.stats.pm}</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 25px;">
-                    <h3 style="font-family: 'Cinzel', serif; color: #e4ae39; margin-bottom: 10px; font-size: 1.3rem;">Capacités Spéciales</h3>
-                    <div style="background: rgba(200, 155, 60, 0.1); padding: 15px; border-radius: 10px; line-height: 1.6;">
-                        <div style="margin-bottom: 8px;"><strong style="color: #e4ae39;">Race:</strong> ${character.race?.ability}</div>
-                        <div><strong style="color: #e4ae39;">Historique:</strong> ${character.historique?.ability}</div>
-                    </div>
-                </div>
-                
-                <div>
-                    <h3 style="font-family: 'Cinzel', serif; color: #e4ae39; margin-bottom: 10px; font-size: 1.3rem;">Formations (${character.selectedFormations.length})</h3>
-                    <div style="background: rgba(200, 155, 60, 0.1); padding: 15px; border-radius: 10px; line-height: 1.8;">
-                        ${formationsList}
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(tempDiv);
-            
-            // Si une image existe, la dessiner sur le canvas PNG
-            if (character.image) {
-                const pngCanvas = document.getElementById('pngImageCanvas');
-                if (pngCanvas) {
-                    const pngCtx = pngCanvas.getContext('2d');
-                    
-                    const img = new Image();
-                    img.onload = async function() {
-                        // Clipper en cercle
-                        pngCtx.beginPath();
-                        pngCtx.arc(90, 90, 90, 0, Math.PI * 2);
-                        pngCtx.clip();
-                        
-                        // Calculer les dimensions (adapter à la taille 180x180)
-                        const scale = character.imagePosition.scale;
-                        const size = Math.max(img.width, img.height) * scale * 0.72;
-                        const x = 90 + character.imagePosition.x * 0.72 - size / 2;
-                        const y = 90 + character.imagePosition.y * 0.72 - size / 2;
-                        
-                        // Dessiner l'image
-                        pngCtx.drawImage(img, x, y, size, size);
-                        
-                        // Capturer après avoir dessiné
-                        await capturePNG();
-                    };
-                    img.src = character.image;
-                } else {
-                    await capturePNG();
-                }
-            } else {
-                await capturePNG();
-            }
-            
-            async function capturePNG() {
-                try {
-                    const canvas = await html2canvas(tempDiv, {
-                        backgroundColor: null,
-                        scale: 2
-                    });
-                    
-                    canvas.toBlob(function(blob) {
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `${character.nom || 'personnage'}.png`;
-                        a.click();
-                        URL.revokeObjectURL(url);
-                    });
-                    
-                    document.body.removeChild(tempDiv);
-                } catch (error) {
-                    console.error('Erreur lors de la génération du PNG:', error);
-                    alert('Erreur lors de la génération de l\'image');
-                    document.body.removeChild(tempDiv);
-                }
-            }
-        }
-
-        // Gestion de l'image du personnage
-        let imageCanvas = null;
-        let imageCtx = null;
-        let isDragging = false;
-        let lastMousePos = { x: 0, y: 0 };
-
-        function initImageCanvas() {
-            imageCanvas = document.getElementById('imageCanvas');
-            if (!imageCanvas) return;
-            
-            imageCtx = imageCanvas.getContext('2d');
-            
-            // Events pour le drag
-            imageCanvas.addEventListener('mousedown', startDrag);
-            imageCanvas.addEventListener('mousemove', drag);
-            imageCanvas.addEventListener('mouseup', endDrag);
-            imageCanvas.addEventListener('mouseleave', endDrag);
-            
-            // Event pour le zoom avec la molette
-            imageCanvas.addEventListener('wheel', function(e) {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? -0.05 : 0.05;
-                zoomImage(delta);
-            });
-            
-            // Event pour le chargement d'image
-            const imageInput = document.getElementById('imageInput');
-            if (imageInput) {
-                imageInput.addEventListener('change', loadImage);
-            }
-            
-            // Dessiner l'image si elle existe
-            if (character.image) {
-                drawImageOnCanvas();
-            } else {
-                drawPlaceholder();
-            }
-        }
-
-        function drawPlaceholder() {
-            if (!imageCtx || !imageCanvas) return;
-            
-            imageCtx.clearRect(0, 0, 250, 250);
-            imageCtx.save();
-            
-            // Clipper en cercle
-            imageCtx.beginPath();
-            imageCtx.arc(125, 125, 125, 0, Math.PI * 2);
-            imageCtx.clip();
-            
-            // Fond
-            imageCtx.fillStyle = 'rgba(30, 45, 63, 0.5)';
-            imageCtx.fillRect(0, 0, 250, 250);
-            
-            // Icône
-            imageCtx.fillStyle = 'rgba(200, 155, 60, 0.3)';
-            imageCtx.font = '60px Arial';
-            imageCtx.textAlign = 'center';
-            imageCtx.textBaseline = 'middle';
-            imageCtx.fillText('📷', 125, 125);
-            
-            imageCtx.restore();
-        }
-
-        function loadImage(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                character.image = e.target.result;
-                character.imagePosition = { x: 0, y: 0, scale: 1 };
-                drawImageOnCanvas();
-                renderStep();
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function drawImageOnCanvas() {
-            if (!character.image || !imageCtx || !imageCanvas) return;
-            
-            const img = new Image();
-            img.onload = function() {
-                imageCtx.clearRect(0, 0, 250, 250);
-                imageCtx.save();
-                
-                // Clipper en cercle
-                imageCtx.beginPath();
-                imageCtx.arc(125, 125, 125, 0, Math.PI * 2);
-                imageCtx.clip();
-                
-                // Calculer les dimensions
-                const scale = character.imagePosition.scale;
-                const size = Math.max(img.width, img.height) * scale;
-                const x = 125 + character.imagePosition.x - size / 2;
-                const y = 125 + character.imagePosition.y - size / 2;
-                
-                // Dessiner l'image
-                imageCtx.drawImage(img, x, y, size, size);
-                
-                imageCtx.restore();
-            };
-            img.src = character.image;
-        }
-
-        function startDrag(e) {
-            if (!character.image) return;
-            isDragging = true;
-            lastMousePos = { x: e.offsetX, y: e.offsetY };
-        }
-
-        function drag(e) {
-            if (!isDragging || !character.image) return;
-            
-            const dx = e.offsetX - lastMousePos.x;
-            const dy = e.offsetY - lastMousePos.y;
-            
-            character.imagePosition.x += dx;
-            character.imagePosition.y += dy;
-            
-            lastMousePos = { x: e.offsetX, y: e.offsetY };
-            
-            drawImageOnCanvas();
-        }
-
-        function endDrag() {
-            isDragging = false;
-        }
-
-        function zoomImage(delta) {
-            if (!character.image) return;
-            
-            character.imagePosition.scale = Math.max(0.5, Math.min(3, character.imagePosition.scale + delta));
-            drawImageOnCanvas();
-        }
-
-        function resetImagePosition() {
-            if (!character.image) return;
-            
-            character.imagePosition = { x: 0, y: 0, scale: 1 };
-            drawImageOnCanvas();
-        }
-
-        function removeImage() {
-            character.image = null;
-            character.imagePosition = { x: 0, y: 0, scale: 1 };
-            renderStep();
-        }
-
-        // Initialisation au chargement
-        init();
-    </script>
 </body>
 </html>
