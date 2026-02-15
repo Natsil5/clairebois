@@ -6,6 +6,7 @@
     <title>Créateur de Compétences - Comté de Clairebois</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/common.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         .back-link {
             display: inline-block;
@@ -218,23 +219,232 @@
         }
 
         .preview-skill {
-            background: rgba(200, 155, 60, 0.05);
-            padding: 1.5rem;
-            border-radius: 12px;
-            border: 2px solid rgba(200, 155, 60, 0.3);
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+            border: 4px solid transparent;
+            background-image: 
+                linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%),
+                linear-gradient(135deg, #c89b3c 0%, #e4ae39 50%, #c89b3c 100%);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+
+        .card-title-bar {
+            background: linear-gradient(135deg, rgba(20, 40, 80, 0.95) 0%, rgba(10, 20, 40, 0.95) 100%);
+            padding: 1rem 1.5rem;
+            border-bottom: 3px solid rgba(200, 155, 60, 0.5);
+            position: relative;
+            text-align: center;
+        }
+
+        .card-type-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(135deg, #2a4d7c 0%, #1a3a5c 100%);
+            color: #e4ae39;
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border: 2px solid #c89b3c;
+            z-index: 10;
+        }
+
+        .card-header {
+            display: none;
         }
 
         .preview-name {
             font-family: 'Cinzel', serif;
-            font-size: 1.8rem;
+            font-size: 1.3rem;
+            color: #f5f5f5;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .card-rank-badge {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            width: 60px;
+            height: 70px;
+            background: linear-gradient(135deg, #2a4d7c 0%, #1a3a5c 100%);
+            clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #e4ae39;
+            border: 3px solid #c89b3c;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+            z-index: 10;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, rgba(42, 77, 124, 0.3) 0%, rgba(26, 58, 92, 0.3) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            border-bottom: 3px solid rgba(200, 155, 60, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(228, 174, 57, 0.2) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-image canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .card-image-placeholder {
+            opacity: 0.2;
+            font-size: 5rem;
+        }
+
+        .card-rank-badge.error {
+            background: linear-gradient(135deg, #8b2020 0%, #5a0000 100%);
+            border-color: #c2413e;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(15, 15, 30, 0.95) 100%);
+        }
+
+        .preview-desc {
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(200, 155, 60, 0.3);
+            font-size: 0.95rem;
+            color: #d0d0d0;
+            font-style: italic;
+        }
+
+        .preview-stat {
+            display: flex;
+            align-items: center;
+            padding: 0.6rem 0;
+            font-size: 1rem;
+            color: #f5f5f5;
+        }
+
+        .preview-stat-icon {
+            width: 30px;
+            height: 30px;
+            margin-right: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, rgba(200, 155, 60, 0.2) 0%, rgba(228, 174, 57, 0.1) 100%);
+            border-radius: 6px;
+            border: 1px solid rgba(200, 155, 60, 0.3);
+        }
+
+        .preview-stat-label {
+            flex: 1;
+            color: #c0c0c0;
+        }
+
+        .preview-stat-value {
+            color: #e4ae39;
+            font-weight: 700;
+            font-family: 'Cinzel', serif;
+        }
+
+        .preview-enhancements {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid rgba(200, 155, 60, 0.3);
+        }
+
+        .preview-enhancements-title {
+            color: #e4ae39;
+            font-family: 'Cinzel', serif;
+            font-size: 0.95rem;
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .preview-enhancement {
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            color: #d0d0d0;
+            display: flex;
+            align-items: center;
+        }
+
+        .preview-enhancement::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #e4ae39;
+            border-radius: 50%;
+            margin-right: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .preview-type, .preview-rank {
+            display: none;
+        }
+
+        .preview-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.6rem;
             color: var(--accent);
-            margin-bottom: 0.5rem;
+            margin: 0;
+            padding-right: 60px;
+        }
+
+        .preview-type {
+            font-size: 0.9rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 0.25rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
         }
 
         .preview-rank {
-            font-size: 1.2rem;
-            color: var(--primary);
-            margin-bottom: 1rem;
+            display: none;
         }
 
         .preview-desc {
@@ -242,6 +452,7 @@
             margin-bottom: 1rem;
             padding-bottom: 1rem;
             border-bottom: 1px solid rgba(200, 155, 60, 0.2);
+            font-size: 0.95rem;
         }
 
         .preview-stat {
@@ -344,10 +555,41 @@
                 </div>
 
                 <div class="input-group">
+                    <label class="input-label">Image de la Capacité</label>
+                    <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 1rem;">Glissez pour positionner • Molette pour zoomer</p>
+                    
+                    <div style="position: relative; width: 100%; max-width: 400px; margin: 0 auto;">
+                        <canvas id="skillImageCanvas" width="400" height="280" 
+                                style="border: 3px solid var(--primary); border-radius: 12px; cursor: move; background: rgba(30, 45, 63, 0.5); display: block; width: 100%; touch-action: none;"></canvas>
+                        <input type="file" id="skillImageInput" accept="image/*" style="display: none;">
+                        <button type="button" onclick="document.getElementById('skillImageInput').click()" 
+                                style="position: absolute; bottom: 10px; right: 10px; width: 40px; height: 40px; border-radius: 50%; background: var(--primary); border: none; color: var(--secondary); font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                            📷
+                        </button>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: center;">
+                        <button type="button" class="btn btn-secondary" onclick="zoomSkillImage(-0.1)" style="padding: 0.5rem 1rem;">−</button>
+                        <button type="button" class="btn btn-secondary" onclick="zoomSkillImage(0.1)" style="padding: 0.5rem 1rem;">+</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetSkillImagePosition()" style="padding: 0.5rem 1rem;">↻</button>
+                    </div>
+                </div>
+
+                <div class="input-group">
                     <label class="input-label">Type de Ressource</label>
                     <select id="resourceType">
-                        <option value="mana">Mana (INT)</option>
-                        <option value="endurance">Endurance (FOR/AGI)</option>
+                        <option value="mana">Mana</option>
+                        <option value="endurance">Endurance</option>
+                        <option value="health">Santé (PV)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Caractéristique Utilisée</label>
+                    <select id="statType">
+                        <option value="INT">Intelligence (INT)</option>
+                        <option value="FOR">Force (FOR)</option>
+                        <option value="AGI">Agilité (AGI)</option>
                     </select>
                 </div>
 
@@ -358,7 +600,7 @@
                         <option value="heal">Soin</option>
                         <option value="buff">Buff</option>
                         <option value="debuff">Debuff</option>
-                        <option value="summon">Invocation</option>
+                        <option value="summon_familiar">Créature</option>
                         <option value="cosmetic">Cosmétique</option>
                     </select>
                 </div>
@@ -370,7 +612,8 @@
                 </div>
 
                 <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="saveSkill()">💾 Sauvegarder</button>
+                    <button class="btn btn-primary" onclick="downloadSkillPNG()">🖼️ PNG</button>
+                    <button class="btn btn-primary" onclick="saveSkill()">💾 JSON</button>
                     <button class="btn btn-secondary" onclick="resetSkill()">🔄 Réinitialiser</button>
                     <button class="btn btn-secondary" onclick="loadSkill()">📁 Charger</button>
                 </div>
