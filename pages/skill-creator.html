@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../css/common.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
+        /* ---- Lien retour ---- */
         .back-link {
             display: inline-block;
             margin-bottom: 2rem;
@@ -16,17 +17,14 @@
             font-family: 'Cinzel', serif;
             transition: all 0.3s ease;
         }
+        .back-link:hover { transform: translateX(-5px); }
 
-        .back-link:hover {
-            transform: translateX(-5px);
-        }
-
+        /* ---- Header ---- */
         header {
             text-align: center;
             margin-bottom: 2rem;
             animation: fadeInDown 0.8s ease-out;
         }
-
         .subtitle {
             font-size: 1.2rem;
             color: var(--text-light);
@@ -36,40 +34,107 @@
             font-weight: 300;
         }
 
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 2rem;
-            animation: fadeIn 1s ease-out;
+        /* ---- Barre de progression ---- */
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3rem;
+            padding: 0 1rem;
+            position: relative;
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 1.5rem;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(200, 155, 60, 0.2);
+            z-index: 0;
+        }
+        .progress-line {
+            position: absolute;
+            top: 1.5rem;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+            box-shadow: 0 0 10px rgba(200, 155, 60, 0.5);
+        }
+        .step-indicator {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .step-indicator:hover { transform: translateY(-2px); }
+        .step-circle {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background: rgba(30, 45, 63, 0.8);
+            border: 2px solid rgba(200, 155, 60, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+        }
+        .step-indicator.active .step-circle {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(200, 155, 60, 0.6);
+            color: var(--secondary);
+        }
+        .step-indicator.completed .step-circle {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        .step-label {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            color: var(--text-light);
+            opacity: 0.7;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 0.05em;
         }
 
-        .skill-builder, .skill-preview {
-            background: linear-gradient(135deg, rgba(30, 45, 63, 0.8) 0%, rgba(15, 25, 35, 0.8) 100%);
+        /* ---- Contenu des étapes ---- */
+        .step-content {
+            background: rgba(15, 25, 35, 0.7);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 2rem;
+            padding: 2.5rem;
             border: 1px solid rgba(200, 155, 60, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            min-height: 500px;
+            animation: fadeIn 0.5s ease-out;
         }
-
-        .skill-preview {
-            position: sticky;
-            top: 2rem;
-            height: fit-content;
-        }
-
-        .section-title {
+        .step-title {
             font-family: 'Cinzel', serif;
-            font-size: 1.5rem;
+            font-size: 2rem;
             color: var(--primary);
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid rgba(200, 155, 60, 0.3);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .step-description {
+            color: var(--text-light);
+            opacity: 0.8;
+            margin-bottom: 2rem;
+            line-height: 1.6;
         }
 
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
-
+        /* ---- Formulaire ---- */
+        .input-group { margin-bottom: 1.5rem; }
         .input-label {
             display: block;
             font-family: 'Cinzel', serif;
@@ -77,7 +142,6 @@
             color: var(--primary);
             margin-bottom: 0.5rem;
         }
-
         .text-input, select, textarea {
             width: 100%;
             padding: 0.75rem;
@@ -88,160 +152,146 @@
             font-family: 'Crimson Pro', serif;
             font-size: 1rem;
             transition: all 0.3s ease;
+            box-sizing: border-box;
         }
-
-        textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-
+        textarea { min-height: 80px; resize: vertical; }
         .text-input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(200, 155, 60, 0.1);
         }
+        select option { background: var(--secondary); color: var(--text-light); }
 
-        select option {
-            background: var(--secondary);
-            color: var(--text-light);
-        }
-
-        .cost-display {
-            background: rgba(200, 155, 60, 0.1);
-            padding: 1rem;
-            border-radius: 8px;
-            border-left: 3px solid var(--primary);
-            margin-bottom: 1.5rem;
-        }
-
-        .cost-row {
+        /* ---- Boutons d'action ---- */
+        .action-buttons {
             display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
             justify-content: space-between;
             align-items: center;
-            padding: 0.5rem 0;
         }
 
-        .cost-label {
-            font-family: 'Cinzel', serif;
-            color: var(--accent);
-        }
-
-        .cost-value {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .cost-value.error {
-            color: var(--danger);
-        }
-
-        .enhancement-list {
-            display: grid;
+        /* ---- Sélecteur de niveau ---- */
+        .niveau-selector {
+            display: flex;
             gap: 0.75rem;
+            margin-bottom: 1.5rem;
         }
-
-        .enhancement-item {
-            background: rgba(30, 45, 63, 0.6);
+        .niveau-btn {
+            flex: 1;
             padding: 1rem;
-            border-radius: 8px;
-            border: 2px solid transparent;
+            background: rgba(30, 45, 63, 0.6);
+            border: 2px solid rgba(200, 155, 60, 0.3);
+            border-radius: 10px;
+            color: var(--text-light);
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
-
-        .enhancement-item:has(input:checked) {
+        .niveau-btn.active {
+            background: var(--primary);
+            color: var(--secondary);
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(200, 155, 60, 0.4);
+        }
+        .niveau-btn:hover:not(.active) {
             border-color: var(--primary);
             background: rgba(200, 155, 60, 0.1);
         }
 
-        .enhancement-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.5rem;
+        /* ---- Tableau des stats ---- */
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
         }
-
-        .enhancement-checkbox {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .enhancement-name {
-            font-family: 'Cinzel', serif;
+        .stats-table th {
             color: var(--primary);
-            font-size: 1.1rem;
-            flex: 1;
-        }
-
-        .enhancement-cost {
-            background: var(--primary);
-            color: var(--secondary);
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .enhancement-desc {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            line-height: 1.4;
-            margin-left: 2rem;
-        }
-
-        .rank-selector {
-            display: flex;
-            gap: 0.5rem;
-            margin-left: 2rem;
-            margin-top: 0.5rem;
-        }
-
-        .rank-btn {
-            padding: 0.4rem 0.8rem;
-            background: rgba(30, 45, 63, 0.8);
-            border: 2px solid rgba(200, 155, 60, 0.3);
-            border-radius: 6px;
-            color: var(--text-light);
             font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+            border-bottom: 2px solid rgba(200, 155, 60, 0.3);
+            text-align: left;
+        }
+        .stats-table td {
+            padding: 0.6rem 0.75rem;
+            border-bottom: 1px solid rgba(200, 155, 60, 0.1);
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        .stats-table tr.active-row td {
+            background: rgba(200, 155, 60, 0.12);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ---- Grille type de sort ---- */
+        .type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .type-option {
+            padding: 1.25rem;
+            background: rgba(30, 45, 63, 0.6);
+            border: 2px solid rgba(200, 155, 60, 0.2);
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
+            text-align: center;
         }
-
-        .rank-btn.active {
-            background: var(--primary);
-            color: var(--secondary);
+        .type-option.selected {
             border-color: var(--primary);
+            background: rgba(200, 155, 60, 0.1);
+        }
+        .type-option:hover:not(.selected) {
+            border-color: rgba(200, 155, 60, 0.5);
+            background: rgba(30, 45, 63, 0.8);
+        }
+        .type-option-name {
+            font-family: 'Cinzel', serif;
+            color: var(--primary);
+            font-size: 1rem;
+            margin-bottom: 0.4rem;
+        }
+        .type-option-desc {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            line-height: 1.4;
         }
 
-        .rank-btn:hover:not(.active) {
-            border-color: var(--primary);
-        }
-
+        /* ---- Carte de prévisualisation (étape 5) ---- */
         .preview-skill {
             background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
             border-radius: 20px;
             overflow: hidden;
             position: relative;
-            width: 100%;
-            max-width: 400px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
             border: 4px solid transparent;
-            background-image: 
+            background-image:
                 linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%),
                 linear-gradient(135deg, #c89b3c 0%, #e4ae39 50%, #c89b3c 100%);
             background-origin: border-box;
             background-clip: padding-box, border-box;
         }
-
         .card-title-bar {
             background: linear-gradient(135deg, rgba(20, 40, 80, 0.95) 0%, rgba(10, 20, 40, 0.95) 100%);
             padding: 1rem 1.5rem;
             border-bottom: 3px solid rgba(200, 155, 60, 0.5);
-            position: relative;
             text-align: center;
         }
-
+        .preview-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            color: #f5f5f5;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+        }
         .card-type-badge {
             position: absolute;
             top: 10px;
@@ -258,21 +308,6 @@
             border: 2px solid #c89b3c;
             z-index: 10;
         }
-
-        .card-header {
-            display: none;
-        }
-
-        .preview-name {
-            font-family: 'Cinzel', serif;
-            font-size: 1.3rem;
-            color: #f5f5f5;
-            margin: 0;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-        }
-
         .card-rank-badge {
             position: absolute;
             bottom: 10px;
@@ -292,7 +327,6 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
             z-index: 10;
         }
-
         .card-image {
             width: 100%;
             height: 280px;
@@ -305,45 +339,24 @@
             position: relative;
             overflow: hidden;
         }
-
         .card-image::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            inset: 0;
             background: radial-gradient(circle at center, rgba(228, 174, 57, 0.2) 0%, transparent 70%);
             pointer-events: none;
         }
-
-        .card-image img {
+        .card-image img, .card-image canvas {
             width: 100%;
             height: 100%;
             object-fit: cover;
-        }
-
-        .card-image canvas {
-            width: 100%;
-            height: 100%;
             display: block;
         }
-
-        .card-image-placeholder {
-            opacity: 0.2;
-            font-size: 5rem;
-        }
-
-        .card-rank-badge.error {
-            background: linear-gradient(135deg, #8b2020 0%, #5a0000 100%);
-            border-color: #c2413e;
-        }
-
+        .card-image-placeholder { opacity: 0.2; font-size: 5rem; }
         .card-body {
             padding: 1.5rem;
             background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(15, 15, 30, 0.95) 100%);
         }
-
         .preview-desc {
             line-height: 1.6;
             margin-bottom: 1.5rem;
@@ -353,7 +366,6 @@
             color: #d0d0d0;
             font-style: italic;
         }
-
         .preview-stat {
             display: flex;
             align-items: center;
@@ -361,7 +373,6 @@
             font-size: 1rem;
             color: #f5f5f5;
         }
-
         .preview-stat-icon {
             width: 30px;
             height: 30px;
@@ -373,260 +384,44 @@
             background: linear-gradient(135deg, rgba(200, 155, 60, 0.2) 0%, rgba(228, 174, 57, 0.1) 100%);
             border-radius: 6px;
             border: 1px solid rgba(200, 155, 60, 0.3);
+            flex-shrink: 0;
         }
-
         .preview-stat-label {
             flex: 1;
             color: #c0c0c0;
         }
-
         .preview-stat-value {
             color: #e4ae39;
             font-weight: 700;
             font-family: 'Cinzel', serif;
         }
 
-        .preview-enhancements {
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 2px solid rgba(200, 155, 60, 0.3);
-        }
-
-        .preview-enhancements-title {
-            color: #e4ae39;
-            font-family: 'Cinzel', serif;
-            font-size: 0.95rem;
-            margin-bottom: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        .preview-enhancement {
-            padding: 0.5rem 0;
-            font-size: 0.9rem;
-            color: #d0d0d0;
-            display: flex;
-            align-items: center;
-        }
-
-        .preview-enhancement::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background: #e4ae39;
-            border-radius: 50%;
-            margin-right: 0.8rem;
-            flex-shrink: 0;
-        }
-
-        .preview-type, .preview-rank {
-            display: none;
-        }
-
-        .preview-name {
-            font-family: 'Cinzel', serif;
-            font-size: 1.6rem;
-            color: var(--accent);
-            margin: 0;
-            padding-right: 60px;
-        }
-
-        .preview-type {
-            font-size: 0.9rem;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-top: 0.25rem;
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        .preview-rank {
-            display: none;
-        }
-
-        .preview-desc {
-            line-height: 1.6;
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(200, 155, 60, 0.2);
-            font-size: 0.95rem;
-        }
-
-        .preview-stat {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            font-size: 0.95rem;
-        }
-
-        .preview-stat-label {
-            opacity: 0.8;
-        }
-
-        .preview-stat-value {
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .preview-enhancements {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(200, 155, 60, 0.2);
-        }
-
-        .preview-enhancement {
-            padding: 0.4rem 0;
-            font-size: 0.9rem;
-        }
-
-        .preview-enhancement::before {
-            content: '✦';
-            color: var(--primary);
-            margin-right: 0.5rem;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        @media (max-width: 1024px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .skill-preview {
-                position: static;
-            }
-        }
-
+        /* ---- Responsive ---- */
         @media (max-width: 768px) {
-            .skill-builder, .skill-preview {
-                padding: 1.5rem;
-            }
-
-            .section-title {
-                font-size: 1.2rem;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
+            .step-content { padding: 1.5rem; }
+            .step-title { font-size: 1.5rem; }
+            .niveau-selector { gap: 0.4rem; }
+            .niveau-btn { font-size: 1rem; padding: 0.75rem 0.5rem; }
+            .type-grid { grid-template-columns: repeat(2, 1fr); }
+            .action-buttons { flex-wrap: wrap; }
+            .stats-table th, .stats-table td { font-size: 0.75rem; padding: 0.4rem 0.5rem; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="../index.html" class="back-link">← Retour à l'accueil</a>
-        
+
         <header>
             <h1>Créateur de Compétences</h1>
-            <p class="subtitle">Conception de capacités équilibrées</p>
+            <p class="subtitle">Création de sorts et capacités</p>
         </header>
 
-        <div class="main-grid">
-            <!-- Builder -->
-            <div class="skill-builder">
-                <h2 class="section-title">Configuration</h2>
+        <!-- Barre de progression -->
+        <div class="progress-bar" id="progressBar"></div>
 
-                <div class="cost-display">
-                    <div class="cost-row">
-                        <span class="cost-label">Rang Total</span>
-                        <span class="cost-value" id="totalRank">1</span>
-                    </div>
-                    <div class="cost-row">
-                        <span class="cost-label">Coût en Points</span>
-                        <span class="cost-value" id="totalCost">1</span>
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label">Nom de la Capacité</label>
-                    <input type="text" class="text-input" id="skillName" placeholder="Ex: Boule de Feu" value="Capacité Sans Nom">
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label">Description</label>
-                    <textarea class="text-input" id="skillDesc" placeholder="Décrivez l'effet de la capacité...">Une capacité magique puissante.</textarea>
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label">Image de la Capacité</label>
-                    <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 1rem;">Glissez pour positionner • Molette pour zoomer</p>
-                    
-                    <div style="position: relative; width: 100%; max-width: 400px; margin: 0 auto;">
-                        <canvas id="skillImageCanvas" width="400" height="280" 
-                                style="border: 3px solid var(--primary); border-radius: 12px; cursor: move; background: rgba(30, 45, 63, 0.5); display: block; width: 100%; touch-action: none;"></canvas>
-                        <input type="file" id="skillImageInput" accept="image/*" style="display: none;">
-                        <button type="button" onclick="document.getElementById('skillImageInput').click()" 
-                                style="position: absolute; bottom: 10px; right: 10px; width: 40px; height: 40px; border-radius: 50%; background: var(--primary); border: none; color: var(--secondary); font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-                            📷
-                        </button>
-                    </div>
-                    
-                    <div style="text-align: center; margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: center;">
-                        <button type="button" class="btn btn-secondary" onclick="zoomSkillImage(-0.1)" style="padding: 0.5rem 1rem;">−</button>
-                        <button type="button" class="btn btn-secondary" onclick="zoomSkillImage(0.1)" style="padding: 0.5rem 1rem;">+</button>
-                        <button type="button" class="btn btn-secondary" onclick="resetSkillImagePosition()" style="padding: 0.5rem 1rem;">↻</button>
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label">Type de Ressource</label>
-                    <select id="resourceType">
-                        <option value="mana">Mana</option>
-                        <option value="endurance">Endurance</option>
-                        <option value="health">Santé (PV)</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label">Caractéristique Utilisée</label>
-                    <select id="statType">
-                        <option value="INT">Intelligence (INT)</option>
-                        <option value="FOR">Force (FOR)</option>
-                        <option value="AGI">Agilité (AGI)</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label">Type de Capacité</label>
-                    <select id="skillType">
-                        <option value="damage">Dégâts</option>
-                        <option value="heal">Soin</option>
-                        <option value="buff">Buff</option>
-                        <option value="debuff">Debuff</option>
-                        <option value="summon_familiar">Créature</option>
-                        <option value="cosmetic">Cosmétique</option>
-                    </select>
-                </div>
-
-                <h2 class="section-title" style="margin-top: 2rem;">Améliorations</h2>
-
-                <div class="enhancement-list" id="enhancementList">
-                    <!-- Améliorations générées par JS -->
-                </div>
-
-                <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="downloadSkillPNG()">🖼️ PNG</button>
-                    <button class="btn btn-primary" onclick="saveSkill()">💾 JSON</button>
-                    <button class="btn btn-secondary" onclick="resetSkill()">🔄 Réinitialiser</button>
-                    <button class="btn btn-secondary" onclick="loadSkill()">📁 Charger</button>
-                </div>
-            </div>
-
-            <!-- Preview -->
-            <div class="skill-preview">
-                <h2 class="section-title">Prévisualisation</h2>
-                <div class="preview-skill" id="previewCard">
-                    <!-- Généré par JS -->
-                </div>
-            </div>
-        </div>
+        <!-- Contenu dynamique des étapes -->
+        <div class="step-content" id="stepContent"></div>
     </div>
 
     <script src="../js/skill-creator.js"></script>

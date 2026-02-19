@@ -1,136 +1,594 @@
-// Configuration des améliorations
-const enhancements = [
-    { 
-        id: 'damage', 
-        name: 'Augmentation de Dégâts/Soins', 
-        cost: 1, 
-        maxRank: 3, 
-        desc: '+2/+4/+6 points de dégâts ou soins',
-        values: [2, 4, 6]
-    },
-    { 
-        id: 'barrier', 
-        name: 'Barrière', 
-        cost: 1, 
-        maxRank: 3, 
-        desc: '+4/+8/+12 points de barrière (absorbe les dégâts avant les PV)',
-        values: [4, 8, 12]
-    },
-    { 
-        id: 'aoe', 
-        name: 'Aire d\'Effet', 
-        cost: 1, 
-        maxRank: 1, 
-        desc: 'Capacité de zone (dégâts/soins ÷2, 10m de rayon ou 5m si passif)'
-    },
-    { 
-        id: 'armorPen', 
-        name: 'Réduction d\'Armure', 
-        cost: 1, 
-        maxRank: 3, 
-        desc: 'Ignore 1/2/3 points de réduction de dégât',
-        values: [1, 2, 3]
-    },
-    { 
-        id: 'damageReduction', 
-        name: 'Réduction de Dégât', 
-        cost: 1, 
-        maxRank: 3, 
-        desc: 'Réduit 1/2/3 points de dégât supplémentaires reçus',
-        values: [1, 2, 3]
-    },
-    { 
-        id: 'statBonus', 
-        name: 'Bonus de Caractéristique', 
-        cost: 1, 
-        maxRank: 3, 
-        desc: '+10/+20/+30 à une caractéristique (FOR, AGI ou INT)',
-        values: [10, 20, 30]
-    },
-    { 
-        id: 'heal', 
-        name: 'Soin', 
-        cost: 1, 
-        maxRank: 1, 
-        desc: 'La capacité permet de soigner (3+STAT de base)'
-    },
-    { 
-        id: 'passive', 
-        name: 'Passif', 
-        cost: 1, 
-        maxRank: 1, 
-        desc: 'Capacité passive et permanente (aucun coût en ressources, zones passives: 5m au lieu de 10m)'
-    },
-    { 
-        id: 'summonTiny', 
-        name: 'Invocation Minuscule', 
-        cost: 1, 
-        maxRank: 1, 
-        desc: 'Invoque 2 créatures minuscules (durée: 10 tours)'
-    },
-    { 
-        id: 'summonSmall', 
-        name: 'Invocation Petite', 
-        cost: 1, 
-        maxRank: 1, 
-        desc: 'Invoque 1 créature petite (durée: 10 tours)'
-    },
-    { 
-        id: 'summonMedium', 
-        name: 'Invocation Moyenne', 
-        cost: 2, 
-        maxRank: 1, 
-        desc: 'Invoque 1 créature moyenne (durée: 10 tours)'
-    },
-    { 
-        id: 'summonLarge', 
-        name: 'Invocation Grande', 
-        cost: 3, 
-        maxRank: 1, 
-        desc: 'Invoque 1 créature grande (durée: 10 tours)'
-    },
-    { 
-        id: 'familiar', 
-        name: 'Familier', 
-        cost: 0, 
-        maxRank: 1, 
-        desc: 'Créature permanente (doit être nourrie, automatiquement passif, ne coûte pas de rang ni de ressources)'
-    }
+// ============================================================
+// Tableau des statistiques par niveau
+// ============================================================
+const NIVEAU_TABLE = {
+    1: { cibles: 1, zone: 'Contact', bonusMalus: 10,  degats: '3 + Mod.carac',  degatsMulti: '1 + Mod.carac' },
+    2: { cibles: 2, zone: '5m',      bonusMalus: 10,  degats: '5 + Mod.carac',  degatsMulti: '2 + Mod.carac' },
+    3: { cibles: 3, zone: '10m',     bonusMalus: 20,  degats: '7 + Mod.carac',  degatsMulti: '3 + Mod.carac' },
+    4: { cibles: 4, zone: '15m',     bonusMalus: 20,  degats: '9 + Mod.carac',  degatsMulti: '4 + Mod.carac' },
+    5: { cibles: 5, zone: '20m',     bonusMalus: 30,  degats: '11 + Mod.carac', degatsMulti: '5 + Mod.carac' }
+};
+
+// ============================================================
+// Étapes du wizard
+// ============================================================
+const steps = [
+    { id: 1, label: 'Identité' },
+    { id: 2, label: 'Niveau' },
+    { id: 3, label: 'Type' },
+    { id: 4, label: 'Ressource' },
+    { id: 5, label: 'Récap' }
 ];
 
-// État du créateur
+// ============================================================
+// État global
+// ============================================================
+let currentStep = 1;
+
 let skill = {
     name: 'Capacité Sans Nom',
     desc: 'Une capacité magique puissante.',
+    niveau: 1,
+    sortType: 'mono',
+    effectType: 'degats',   // 'degats' | 'soin' | 'barriere' | 'buff' | 'debuff' | 'alteration'
+    alterationType: null,   // 'immobilisation' | 'teleportation' | 'etourdissement'
     resourceType: 'mana',
-    statType: 'INT',
-    type: 'damage',
-    baseRank: 1,
-    enhancements: {},
+    carac: 'INT',
     image: null,
     imagePosition: { x: 0, y: 0, scale: 1 }
 };
 
+// ============================================================
 // Variables pour le canvas d'image
+// ============================================================
 let skillImageCanvas = null;
 let skillImageCtx = null;
 let isDraggingSkillImage = false;
 let lastSkillMousePos = { x: 0, y: 0 };
 
-// Initialiser le canvas d'image
+// ============================================================
+// Fonctions helpers
+// ============================================================
+function getSortTypeLabel(sortType) {
+    const labels = {
+        mono:   'Mono-cible',
+        zone:   'Zone',
+        multi:  'Multi-cible',
+        chaine: 'Chaîne',
+        passif: 'Passif'
+    };
+    return labels[sortType] || sortType;
+}
+
+function formatDegats(template) {
+    return template.replace('Mod.carac', `Mod.${skill.carac}`);
+}
+
+function getActionsLabel(sortType) {
+    if (sortType === 'passif') return 'Permanent';
+    return sortType === 'mono' ? '1 action' : '2 actions';
+}
+
+function getResourceLabel(resourceType) {
+    const labels = { mana: 'Mana', endurance: 'Endurance', sante: 'PV' };
+    return labels[resourceType] || resourceType;
+}
+
+function getCaracLabel(carac) {
+    const labels = { INT: 'Intelligence (INT)', FOR: 'Force (FOR)', AGI: 'Agilité (AGI)' };
+    return labels[carac] || carac;
+}
+
+function getAlterationLabel(alt) {
+    const labels = {
+        immobilisation: 'Immobilisation',
+        teleportation:  'Téléportation',
+        etourdissement: 'Étourdissement'
+    };
+    return labels[alt] || alt;
+}
+
+// ============================================================
+// Navigation du wizard
+// ============================================================
+function nextStep() {
+    if (currentStep < steps.length) {
+        currentStep++;
+        renderProgressBar();
+        renderStep();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        currentStep--;
+        renderProgressBar();
+        renderStep();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function goToStep(stepId) {
+    if (stepId <= currentStep) {
+        currentStep = stepId;
+        renderProgressBar();
+        renderStep();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+// ============================================================
+// Rendu de la barre de progression
+// ============================================================
+function renderProgressBar() {
+    const bar = document.getElementById('progressBar');
+    const progress = ((currentStep - 1) / (steps.length - 1)) * 100;
+
+    let html = `<div class="progress-line" id="progressLine" style="width: ${progress}%"></div>`;
+    steps.forEach(step => {
+        const isActive    = step.id === currentStep;
+        const isCompleted = step.id < currentStep;
+        html += `
+            <div class="step-indicator ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}"
+                 onclick="goToStep(${step.id})">
+                <div class="step-circle">${isCompleted ? '✓' : step.id}</div>
+                <div class="step-label">${step.label}</div>
+            </div>
+        `;
+    });
+    bar.innerHTML = html;
+}
+
+// ============================================================
+// Génération de la carte de prévisualisation (étape 5)
+// ============================================================
+function generatePreviewCard() {
+    const stats         = NIVEAU_TABLE[skill.niveau];
+    const isPassif      = skill.sortType === 'passif';
+    const isMultiTarget = ['zone', 'multi', 'chaine'].includes(skill.sortType);
+    const isMulti       = skill.sortType === 'multi';
+    const isZoneOrChain = ['zone', 'chaine'].includes(skill.sortType);
+
+    // Coût
+    const coutHTML = isPassif
+        ? `<span class="preview-stat-value" style="color: var(--success);">Réduction max. -${skill.niveau} ${getResourceLabel(skill.resourceType)}</span>`
+        : `<span class="preview-stat-value">${skill.niveau} ${getResourceLabel(skill.resourceType)}</span>`;
+
+    // Cibles : seulement pour multi-cible
+    const ciblesHTML = isMulti ? `
+        <div class="preview-stat">
+            <div class="preview-stat-icon">🎯</div>
+            <span class="preview-stat-label">Cibles</span>
+            <span class="preview-stat-value">${stats.cibles}</span>
+        </div>` : '';
+
+    // Portée/Zone : seulement si pas mono-cible
+    const porteeHTML = (!isPassif && skill.sortType !== 'mono') ? `
+        <div class="preview-stat">
+            <div class="preview-stat-icon">📍</div>
+            <span class="preview-stat-label">${isZoneOrChain ? 'Zone' : 'Portée'}</span>
+            <span class="preview-stat-value">${stats.zone}</span>
+        </div>` : '';
+
+    // Dégâts : seulement si effectType === 'degats'
+    const degatsHTML = (!isPassif && skill.effectType === 'degats') ? `
+        <div class="preview-stat">
+            <div class="preview-stat-icon">⚔️</div>
+            <span class="preview-stat-label">Dégâts</span>
+            <span class="preview-stat-value">${formatDegats(isMultiTarget ? stats.degatsMulti : stats.degats)}</span>
+        </div>` : '';
+
+    // Soins : seulement si effectType === 'soin'
+    const soinsHTML = (!isPassif && skill.effectType === 'soin') ? `
+        <div class="preview-stat">
+            <div class="preview-stat-icon">💚</div>
+            <span class="preview-stat-label">Soins</span>
+            <span class="preview-stat-value">${formatDegats(isMultiTarget ? stats.degatsMulti : stats.degats)}</span>
+        </div>` : '';
+
+    // Barrière : seulement si effectType === 'barriere', puissance = dégâts
+    const barriereHTML = (!isPassif && skill.effectType === 'barriere') ? `
+        <div class="preview-stat">
+            <div class="preview-stat-icon">🛡️</div>
+            <span class="preview-stat-label">Barrière</span>
+            <span class="preview-stat-value">${formatDegats(isMultiTarget ? stats.degatsMulti : stats.degats)}</span>
+        </div>` : '';
+
+    // Bonus/Malus : seulement si buff ou debuff
+    // Si multi-cible, la valeur est celle du niveau inférieur (niveau - 1, minimum 1)
+    const bonusMalusNiveau = (isMultiTarget && skill.niveau > 1) ? skill.niveau - 1 : skill.niveau;
+    const bonusMalusVal = NIVEAU_TABLE[bonusMalusNiveau].bonusMalus;
+    const bonusMalusHTML = (!isPassif && (skill.effectType === 'buff' || skill.effectType === 'debuff')) ? `
+        <div class="preview-stat">
+            <div class="preview-stat-icon">${skill.effectType === 'buff' ? '⬆️' : '⬇️'}</div>
+            <span class="preview-stat-label">${skill.effectType === 'buff' ? 'Bonus' : 'Malus'}${isMultiTarget ? ' (multi)' : ''}</span>
+            <span class="preview-stat-value">${skill.effectType === 'buff' ? '+' : '-'}${bonusMalusVal}</span>
+        </div>` : '';
+
+    // Altération : seulement si effectType === 'alteration' et un type est choisi
+    const alterationHTML = (!isPassif && skill.effectType === 'alteration' && skill.alterationType) ? `
+        <div class="preview-stat">
+            <div class="preview-stat-icon">🌀</div>
+            <span class="preview-stat-label">Altération</span>
+            <span class="preview-stat-value">${getAlterationLabel(skill.alterationType)}</span>
+        </div>` : '';
+
+    return `
+        <div class="card-title-bar">
+            <h3 class="preview-name">${skill.name}</h3>
+        </div>
+        <div class="card-image">
+            ${skill.image
+                ? `<canvas id="previewImageCanvas" width="400" height="280" style="width: 100%; height: 100%;"></canvas>`
+                : '<div class="card-image-placeholder">🎴</div>'}
+            <div class="card-type-badge">${getSortTypeLabel(skill.sortType)}</div>
+            <div class="card-rank-badge">${skill.niveau}</div>
+        </div>
+        <div class="card-body">
+            <div class="preview-desc">${skill.desc}</div>
+
+            <div class="preview-stat">
+                <div class="preview-stat-icon">💎</div>
+                <span class="preview-stat-label">Coût</span>
+                ${coutHTML}
+            </div>
+            <div class="preview-stat">
+                <div class="preview-stat-icon">⚡</div>
+                <span class="preview-stat-label">Actions</span>
+                <span class="preview-stat-value">${getActionsLabel(skill.sortType)}</span>
+            </div>
+            ${ciblesHTML}
+            ${porteeHTML}
+            ${degatsHTML}
+            ${soinsHTML}
+            ${barriereHTML}
+            ${bonusMalusHTML}
+            ${alterationHTML}
+            <div class="preview-stat">
+                <div class="preview-stat-icon">💪</div>
+                <span class="preview-stat-label">Caractéristique</span>
+                <span class="preview-stat-value">${getCaracLabel(skill.carac)}</span>
+            </div>
+        </div>
+    `;
+}
+
+// ============================================================
+// Rendu des étapes
+// ============================================================
+function renderStep() {
+    const content = document.getElementById('stepContent');
+
+    switch (currentStep) {
+        // --------------------------------------------------
+        case 1: // Identité
+            content.innerHTML = `
+                <h2 class="step-title">✨ Identité</h2>
+                <p class="step-description">Donnez un nom et une description à votre capacité, et ajoutez une image si vous le souhaitez.</p>
+
+                <div class="input-group">
+                    <label class="input-label">Nom de la Capacité</label>
+                    <input type="text" class="text-input" id="skillName"
+                           placeholder="Ex: Boule de Feu"
+                           value="${skill.name}"
+                           oninput="skill.name = this.value || 'Capacité Sans Nom'; updateNextBtn();">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Description</label>
+                    <textarea class="text-input" id="skillDesc"
+                              placeholder="Décrivez l'effet de la capacité..."
+                              oninput="skill.desc = this.value || 'Description manquante.'">${skill.desc}</textarea>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Image de la Capacité</label>
+                    <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 1rem;">Glissez pour positionner • Molette pour zoomer</p>
+                    <div style="position: relative; width: 100%; max-width: 400px; margin: 0 auto;">
+                        <canvas id="skillImageCanvas" width="400" height="280"
+                                style="border: 3px solid var(--primary); border-radius: 12px; cursor: move; background: rgba(30, 45, 63, 0.5); display: block; width: 100%; touch-action: none;"></canvas>
+                        <input type="file" id="skillImageInput" accept="image/*" style="display: none;">
+                        <button type="button" onclick="document.getElementById('skillImageInput').click()"
+                                style="position: absolute; bottom: 10px; right: 10px; width: 40px; height: 40px; border-radius: 50%; background: var(--primary); border: none; color: var(--secondary); font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                            📷
+                        </button>
+                    </div>
+                    <div style="text-align: center; margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: center; max-width: 400px; margin: 1rem auto 0;">
+                        <button type="button" class="btn btn-secondary" onclick="zoomSkillImage(-0.1)" style="padding: 0.5rem 1rem;">−</button>
+                        <button type="button" class="btn btn-secondary" onclick="zoomSkillImage(0.1)" style="padding: 0.5rem 1rem;">+</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetSkillImagePosition()" style="padding: 0.5rem 1rem;">↻</button>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <div></div>
+                    <button class="btn btn-primary" id="nextBtn1" onclick="nextStep()">Suivant →</button>
+                </div>
+            `;
+            // Initialiser le canvas après injection du HTML
+            initSkillImageCanvas();
+            document.getElementById('skillImageInput').addEventListener('change', loadSkillImage);
+            updateNextBtn();
+            break;
+
+        // --------------------------------------------------
+        case 2: // Niveau
+            const tableRows = Object.entries(NIVEAU_TABLE).map(([niv, stats]) => {
+                const isActive = parseInt(niv) === skill.niveau;
+                return `<tr class="${isActive ? 'active-row' : ''}">
+                    <td>${niv}</td>
+                    <td>${stats.cibles}</td>
+                    <td>${stats.zone}</td>
+                    <td>±${stats.bonusMalus}</td>
+                    <td>${stats.degats}</td>
+                    <td>${stats.degatsMulti}</td>
+                </tr>`;
+            }).join('');
+
+            content.innerHTML = `
+                <h2 class="step-title">📊 Niveau du Sort</h2>
+                <p class="step-description">Choisissez le niveau de votre capacité. Plus le niveau est élevé, plus la capacité est puissante — et coûteuse.</p>
+
+                <div class="niveau-selector" id="niveauSelector">
+                    ${[1,2,3,4,5].map(n => `
+                        <button class="niveau-btn ${n === skill.niveau ? 'active' : ''}"
+                                onclick="selectNiveau(${n})" data-niveau="${n}">${n}</button>
+                    `).join('')}
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="stats-table" id="statsTable">
+                        <thead>
+                            <tr>
+                                <th>Niveau</th>
+                                <th>Cibles</th>
+                                <th>Zone</th>
+                                <th>Bonus/Malus</th>
+                                <th>Dégâts (mono)</th>
+                                <th>Dégâts (multi/zone/chaîne)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statsBody">${tableRows}</tbody>
+                    </table>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="prevStep()">← Précédent</button>
+                    <button class="btn btn-primary" onclick="nextStep()">Suivant →</button>
+                </div>
+            `;
+            break;
+
+        // --------------------------------------------------
+        case 3: // Type de Sort + Effet
+            const types = [
+                { id: 'mono',   icon: '🎯', name: 'Mono-cible',  desc: '1 action · 1 cible directe' },
+                { id: 'zone',   icon: '💥', name: 'Zone',         desc: '2 actions · zone de portée complète' },
+                { id: 'multi',  icon: '👥', name: 'Multi-cible',  desc: '2 actions · plusieurs cibles choisies' },
+                { id: 'chaine', icon: '⛓️', name: 'Chaîne',       desc: '2 actions · rebondit de cible en cible' },
+                { id: 'passif', icon: '♾️', name: 'Passif',       desc: 'Permanent · réduit le max de magie/endurance' }
+            ];
+
+            const effects = [
+                { id: 'degats',    icon: '⚔️', name: 'Dégâts',    desc: 'Inflige des dégâts à la cible' },
+                { id: 'soin',      icon: '💚', name: 'Soin',      desc: 'Restaure des points de vie' },
+                { id: 'barriere',  icon: '🛡️', name: 'Barrière',  desc: 'Absorbe les dégâts reçus (puissance = dégâts)' },
+                { id: 'buff',      icon: '⬆️', name: 'Buff',      desc: 'Applique un bonus à une caractéristique' },
+                { id: 'debuff',    icon: '⬇️', name: 'Débuff',    desc: 'Applique un malus à une caractéristique' },
+                { id: 'alteration',icon: '🌀', name: 'Altération', desc: 'Immobilisation, téléportation, étourdissement...' }
+            ];
+
+            const alterations = [
+                { id: 'immobilisation', icon: '⛓️', name: 'Immobilisation', desc: 'La cible ne peut plus se déplacer' },
+                { id: 'teleportation',  icon: '✨', name: 'Téléportation',  desc: 'Déplace la cible ou le lanceur' },
+                { id: 'etourdissement', icon: '💫', name: 'Étourdissement', desc: 'La cible perd son prochain tour' }
+            ];
+
+            // Si passif, forcer effectType à null (pas affiché)
+            const showEffect = skill.sortType !== 'passif';
+
+            content.innerHTML = `
+                <h2 class="step-title">✨ Type & Effet</h2>
+                <p class="step-description">Choisissez comment votre capacité se manifeste et quel effet elle produit.</p>
+
+                <label class="input-label" style="margin-bottom: 0.75rem; display: block;">Forme du sort</label>
+                <div class="type-grid" style="margin-bottom: 2rem;">
+                    ${types.map(t => `
+                        <div class="type-option ${skill.sortType === t.id ? 'selected' : ''}"
+                             onclick="selectSortType('${t.id}')">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">${t.icon}</div>
+                            <div class="type-option-name">${t.name}</div>
+                            <div class="type-option-desc">${t.desc}</div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div id="effectSection" style="${skill.sortType === 'passif' ? 'display:none;' : ''}">
+                    <label class="input-label" style="margin-bottom: 0.75rem; display: block;">Effet produit</label>
+                    <div class="type-grid">
+                        ${effects.map(e => `
+                            <div class="type-option ${skill.effectType === e.id ? 'selected' : ''}"
+                                 onclick="selectEffectType('${e.id}')">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">${e.icon}</div>
+                                <div class="type-option-name">${e.name}</div>
+                                <div class="type-option-desc">${e.desc}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div id="alterationSection" style="margin-top: 1.5rem; ${skill.effectType === 'alteration' ? '' : 'display:none;'}">
+                        <label class="input-label" style="margin-bottom: 0.75rem; display: block;">Type d'altération</label>
+                        <div class="type-grid">
+                            ${alterations.map(a => `
+                                <div class="type-option ${skill.alterationType === a.id ? 'selected' : ''}"
+                                     onclick="selectAlterationType('${a.id}')">
+                                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">${a.icon}</div>
+                                    <div class="type-option-name">${a.name}</div>
+                                    <div class="type-option-desc">${a.desc}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="prevStep()">← Précédent</button>
+                    <button class="btn btn-primary" onclick="nextStep()">Suivant →</button>
+                </div>
+            `;
+            break;
+
+        // --------------------------------------------------
+        case 4: // Ressource & Caractéristique
+            content.innerHTML = `
+                <h2 class="step-title">⚙️ Ressource & Caractéristique</h2>
+                <p class="step-description">Définissez quelle ressource est dépensée et quelle caractéristique influence cette capacité.</p>
+
+                <div class="input-group">
+                    <label class="input-label">Type de Ressource</label>
+                    <select id="resourceType" class="text-input" onchange="skill.resourceType = this.value">
+                        <option value="mana"      ${skill.resourceType === 'mana'      ? 'selected' : ''}>Mana</option>
+                        <option value="endurance" ${skill.resourceType === 'endurance' ? 'selected' : ''}>Endurance</option>
+                        <option value="sante"     ${skill.resourceType === 'sante'     ? 'selected' : ''}>Santé (PV)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Caractéristique (Mod.carac)</label>
+                    <select id="caracSelect" class="text-input" onchange="skill.carac = this.value">
+                        <option value="INT" ${skill.carac === 'INT' ? 'selected' : ''}>Intelligence (Mod.INT)</option>
+                        <option value="FOR" ${skill.carac === 'FOR' ? 'selected' : ''}>Force (Mod.FOR)</option>
+                        <option value="AGI" ${skill.carac === 'AGI' ? 'selected' : ''}>Agilité (Mod.AGI)</option>
+                    </select>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="prevStep()">← Précédent</button>
+                    <button class="btn btn-primary" onclick="nextStep()">Voir le récapitulatif →</button>
+                </div>
+            `;
+            break;
+
+        // --------------------------------------------------
+        case 5: // Récapitulatif
+            content.innerHTML = `
+                <h2 class="step-title">📜 Récapitulatif</h2>
+                <p class="step-description">Voici votre capacité. Vous pouvez l'exporter ou revenir modifier les étapes précédentes.</p>
+
+                <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
+                    <div class="preview-skill" id="previewCard" style="width: 100%; max-width: 400px;">
+                        ${generatePreviewCard()}
+                    </div>
+                </div>
+
+                <div class="action-buttons" style="flex-wrap: wrap; gap: 0.75rem;">
+                    <button class="btn btn-secondary" onclick="prevStep()">← Précédent</button>
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="downloadSkillPNG()">🖼️ PNG</button>
+                        <button class="btn btn-primary" onclick="saveSkill()">💾 JSON</button>
+                        <button class="btn btn-secondary" onclick="loadSkill()">📁 Charger</button>
+                        <button class="btn btn-secondary" onclick="resetSkill()">🔄 Recommencer</button>
+                    </div>
+                </div>
+            `;
+            // Dessiner l'image dans la carte si elle existe
+            if (skill.image) {
+                setTimeout(updatePreviewImageCanvas, 0);
+            }
+            break;
+    }
+}
+
+// ============================================================
+// Actions sur l'étape 2 (niveau)
+// ============================================================
+function selectNiveau(n) {
+    skill.niveau = n;
+    // Mettre à jour les boutons
+    document.querySelectorAll('.niveau-btn').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.niveau) === n);
+    });
+    // Mettre à jour le tableau (surbrillance de la ligne)
+    document.querySelectorAll('#statsBody tr').forEach((row, i) => {
+        row.classList.toggle('active-row', i + 1 === n);
+    });
+}
+
+// ============================================================
+// Actions sur l'étape 3 (type + effet)
+// ============================================================
+function selectSortType(id) {
+    skill.sortType = id;
+    // Mettre à jour les cartes de la forme du sort
+    // Les cartes sortType sont dans le premier .type-grid, les cartes effectType dans le second
+    const grids = document.querySelectorAll('.type-grid');
+    if (grids[0]) {
+        grids[0].querySelectorAll('.type-option').forEach(el => {
+            el.classList.toggle('selected', el.getAttribute('onclick').includes(`'${id}'`));
+        });
+    }
+    // Masquer/afficher la section effet selon passif
+    const effectSection = document.getElementById('effectSection');
+    if (effectSection) {
+        effectSection.style.display = id === 'passif' ? 'none' : '';
+    }
+}
+
+function selectEffectType(id) {
+    skill.effectType = id;
+    skill.alterationType = null; // réinitialiser si on change d'effet
+    const grids = document.querySelectorAll('.type-grid');
+    if (grids[1]) {
+        grids[1].querySelectorAll('.type-option').forEach(el => {
+            el.classList.toggle('selected', el.getAttribute('onclick').includes(`'${id}'`));
+        });
+    }
+    // Afficher/masquer la sous-section altération
+    const alterationSection = document.getElementById('alterationSection');
+    if (alterationSection) {
+        alterationSection.style.display = id === 'alteration' ? '' : 'none';
+        // Déselectionner toutes les cartes d'altération si on change d'effet
+        if (id !== 'alteration' && grids[2]) {
+            grids[2].querySelectorAll('.type-option').forEach(el => el.classList.remove('selected'));
+        }
+    }
+}
+
+function selectAlterationType(id) {
+    skill.alterationType = id;
+    const grids = document.querySelectorAll('.type-grid');
+    if (grids[2]) {
+        grids[2].querySelectorAll('.type-option').forEach(el => {
+            el.classList.toggle('selected', el.getAttribute('onclick').includes(`'${id}'`));
+        });
+    }
+}
+
+// ============================================================
+// Validation du bouton Suivant (étape 1)
+// ============================================================
+function updateNextBtn() {
+    const btn = document.getElementById('nextBtn1');
+    if (!btn) return;
+    const name = document.getElementById('skillName')?.value?.trim();
+    btn.disabled = !name;
+}
+
+// ============================================================
+// Canvas image — inchangé
+// ============================================================
 function initSkillImageCanvas() {
     skillImageCanvas = document.getElementById('skillImageCanvas');
     if (!skillImageCanvas) return;
-    
+
     skillImageCtx = skillImageCanvas.getContext('2d');
-    
-    // Events souris
+
     skillImageCanvas.addEventListener('mousedown', startDragSkillImage);
     skillImageCanvas.addEventListener('mousemove', dragSkillImage);
     skillImageCanvas.addEventListener('mouseup', endDragSkillImage);
     skillImageCanvas.addEventListener('mouseleave', endDragSkillImage);
-    
-    // Events tactiles (mobile)
+
     skillImageCanvas.addEventListener('touchstart', (e) => {
         e.preventDefault();
         const touch = e.touches[0];
@@ -147,7 +605,6 @@ function initSkillImageCanvas() {
 
     skillImageCanvas.addEventListener('touchend', endDragSkillImage);
 
-    // Pinch to zoom sur mobile
     let lastPinchDist = null;
     skillImageCanvas.addEventListener('touchmove', (e) => {
         if (e.touches.length === 2) {
@@ -155,22 +612,17 @@ function initSkillImageCanvas() {
             const dx = e.touches[0].clientX - e.touches[1].clientX;
             const dy = e.touches[0].clientY - e.touches[1].clientY;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            if (lastPinchDist !== null) {
-                zoomSkillImage((dist - lastPinchDist) * 0.005);
-            }
+            if (lastPinchDist !== null) zoomSkillImage((dist - lastPinchDist) * 0.005);
             lastPinchDist = dist;
         }
     }, { passive: false });
     skillImageCanvas.addEventListener('touchend', () => { lastPinchDist = null; });
 
-    // Zoom molette (desktop)
-    skillImageCanvas.addEventListener('wheel', function(e) {
+    skillImageCanvas.addEventListener('wheel', (e) => {
         e.preventDefault();
-        const delta = e.deltaY > 0 ? -0.05 : 0.05;
-        zoomSkillImage(delta);
+        zoomSkillImage(e.deltaY > 0 ? -0.05 : 0.05);
     });
-    
-    // Dessiner l'image si elle existe
+
     if (skill.image) {
         drawSkillImageOnCanvas();
     } else {
@@ -180,14 +632,9 @@ function initSkillImageCanvas() {
 
 function drawSkillImagePlaceholder() {
     if (!skillImageCtx || !skillImageCanvas) return;
-    
     skillImageCtx.clearRect(0, 0, 400, 280);
-    
-    // Fond
     skillImageCtx.fillStyle = 'rgba(30, 45, 63, 0.5)';
     skillImageCtx.fillRect(0, 0, 400, 280);
-    
-    // Icône
     skillImageCtx.fillStyle = 'rgba(200, 155, 60, 0.3)';
     skillImageCtx.font = '60px Arial';
     skillImageCtx.textAlign = 'center';
@@ -197,23 +644,16 @@ function drawSkillImagePlaceholder() {
 
 function drawSkillImageOnCanvas() {
     if (!skill.image || !skillImageCtx || !skillImageCanvas) return;
-    
     const img = new Image();
-    img.onload = function() {
+    img.onload = function () {
         skillImageCtx.clearRect(0, 0, 400, 280);
-        
-        // "Cover" : respecter le ratio
         const scale = skill.imagePosition.scale;
         const coverScale = Math.max(400 / img.width, 280 / img.height) * scale;
         const drawW = img.width * coverScale;
         const drawH = img.height * coverScale;
-        
         const x = 200 + skill.imagePosition.x - drawW / 2;
         const y = 140 + skill.imagePosition.y - drawH / 2;
-        
         skillImageCtx.drawImage(img, x, y, drawW, drawH);
-        
-        // Mettre à jour aussi le canvas de prévisualisation
         updatePreviewImageCanvas();
     };
     img.src = skill.image;
@@ -221,24 +661,18 @@ function drawSkillImageOnCanvas() {
 
 function updatePreviewImageCanvas() {
     if (!skill.image) return;
-    
     const previewCanvas = document.getElementById('previewImageCanvas');
     if (!previewCanvas) return;
-    
     const ctx = previewCanvas.getContext('2d');
     const img = new Image();
-    img.onload = function() {
+    img.onload = function () {
         ctx.clearRect(0, 0, 400, 280);
-        
-        // Appliquer le même calcul de "cover" que le canvas d'édition
         const scale = skill.imagePosition.scale;
         const coverScale = Math.max(400 / img.width, 280 / img.height) * scale;
         const drawW = img.width * coverScale;
         const drawH = img.height * coverScale;
-        
         const x = 200 + skill.imagePosition.x - drawW / 2;
         const y = 140 + skill.imagePosition.y - drawH / 2;
-        
         ctx.drawImage(img, x, y, drawW, drawH);
     };
     img.src = skill.image;
@@ -252,15 +686,9 @@ function startDragSkillImage(e) {
 
 function dragSkillImage(e) {
     if (!isDraggingSkillImage || !skill.image) return;
-    
-    const dx = e.offsetX - lastSkillMousePos.x;
-    const dy = e.offsetY - lastSkillMousePos.y;
-    
-    skill.imagePosition.x += dx;
-    skill.imagePosition.y += dy;
-    
+    skill.imagePosition.x += e.offsetX - lastSkillMousePos.x;
+    skill.imagePosition.y += e.offsetY - lastSkillMousePos.y;
     lastSkillMousePos = { x: e.offsetX, y: e.offsetY };
-    
     drawSkillImageOnCanvas();
 }
 
@@ -270,30 +698,24 @@ function endDragSkillImage() {
 
 function zoomSkillImage(delta) {
     if (!skill.image) return;
-    
     skill.imagePosition.scale = Math.max(0.5, Math.min(3, skill.imagePosition.scale + delta));
     drawSkillImageOnCanvas();
 }
 
 function resetSkillImagePosition() {
     if (!skill.image) return;
-    
     skill.imagePosition = { x: 0, y: 0, scale: 1 };
     drawSkillImageOnCanvas();
 }
 
-// Charger l'image de la compétence
 function loadSkillImage(event) {
     const file = event.target.files[0];
     if (!file) return;
-    
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function (e) {
         skill.image = e.target.result;
         skill.imagePosition = { x: 0, y: 0, scale: 1 };
         drawSkillImageOnCanvas();
-        
-        // Ajouter le bouton de suppression s'il n'existe pas
         const container = skillImageCanvas?.parentElement;
         if (container && !container.querySelector('.remove-skill-img-btn')) {
             const btn = document.createElement('button');
@@ -304,29 +726,24 @@ function loadSkillImage(event) {
             btn.style.cssText = 'position:absolute;top:10px;right:10px;width:35px;height:35px;border-radius:50%;background:var(--danger);border:none;color:white;font-size:1rem;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,0.3);';
             container.appendChild(btn);
         }
-        
-        updatePreview();
     };
     reader.readAsDataURL(file);
 }
 
-// Retirer l'image
 function removeSkillImage() {
     skill.image = null;
     skill.imagePosition = { x: 0, y: 0, scale: 1 };
     drawSkillImagePlaceholder();
-    
-    // Supprimer le bouton de suppression
     const btn = document.querySelector('.remove-skill-img-btn');
     if (btn) btn.remove();
-    
-    updatePreview();
 }
 
-// Télécharger la carte en PNG
+// ============================================================
+// Export PNG
+// ============================================================
 async function downloadSkillPNG() {
     const card = document.getElementById('previewCard');
-    
+    if (!card) return;
     try {
         const canvas = await html2canvas(card, {
             backgroundColor: '#1a1a2e',
@@ -334,8 +751,7 @@ async function downloadSkillPNG() {
             logging: false,
             useCORS: true
         });
-        
-        canvas.toBlob(function(blob) {
+        canvas.toBlob(function (blob) {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -349,324 +765,9 @@ async function downloadSkillPNG() {
     }
 }
 
-// Initialisation
-function init() {
-    renderEnhancements();
-    updatePreview();
-    
-    // Initialiser le canvas d'image
-    initSkillImageCanvas();
-    
-    // Event listeners
-    document.getElementById('skillName').addEventListener('input', (e) => {
-        skill.name = e.target.value || 'Capacité Sans Nom';
-        updatePreview();
-    });
-    
-    document.getElementById('skillDesc').addEventListener('input', (e) => {
-        skill.desc = e.target.value || 'Description manquante.';
-        updatePreview();
-    });
-    
-    document.getElementById('resourceType').addEventListener('change', (e) => {
-        skill.resourceType = e.target.value;
-        updatePreview();
-    });
-    
-    document.getElementById('statType').addEventListener('change', (e) => {
-        skill.statType = e.target.value;
-        updatePreview();
-    });
-    
-    document.getElementById('skillType').addEventListener('change', (e) => {
-        skill.type = e.target.value;
-        
-        // Si on quitte le type invocation/familier, supprimer les améliorations d'invocation
-        if (e.target.value !== 'summon_familiar') {
-            const summonEnhancements = ['summonTiny', 'summonSmall', 'summonMedium', 'summonLarge', 'familiar'];
-            summonEnhancements.forEach(id => {
-                if (skill.enhancements[id]) {
-                    delete skill.enhancements[id];
-                    const checkbox = document.getElementById(`enh-${id}`);
-                    if (checkbox) checkbox.checked = false;
-                }
-            });
-        }
-        
-        // Re-rendre les améliorations pour afficher/cacher les invocations
-        renderEnhancements();
-        updatePreview();
-    });
-    
-    // Event listener pour l'upload d'image
-    document.getElementById('skillImageInput').addEventListener('change', loadSkillImage);
-}
-
-// Rendu des améliorations
-function renderEnhancements() {
-    const list = document.getElementById('enhancementList');
-    
-    // Filtrer les améliorations selon le type de capacité
-    const summonEnhancements = ['summonTiny', 'summonSmall', 'summonMedium', 'summonLarge', 'familiar'];
-    const filteredEnhancements = enhancements.filter(enh => {
-        // Si le type est invocation/familier, afficher toutes les améliorations
-        if (skill.type === 'summon_familiar') {
-            return true;
-        }
-        // Sinon, cacher les améliorations d'invocation
-        return !summonEnhancements.includes(enh.id);
-    });
-    
-    list.innerHTML = filteredEnhancements.map(enh => `
-        <div class="enhancement-item">
-            <div class="enhancement-header">
-                <input type="checkbox" class="enhancement-checkbox" 
-                       id="enh-${enh.id}" onchange="toggleEnhancement('${enh.id}')">
-                <label class="enhancement-name" for="enh-${enh.id}">${enh.name}</label>
-                <span class="enhancement-cost">+${enh.cost} Rang</span>
-            </div>
-            <div class="enhancement-desc">${enh.desc}</div>
-            ${enh.maxRank > 1 ? `
-                <div class="rank-selector" id="rank-${enh.id}" style="display: none;">
-                    ${Array.from({length: enh.maxRank}, (_, i) => `
-                        <button class="rank-btn ${i === 0 ? 'active' : ''}" 
-                                onclick="setEnhancementRank('${enh.id}', ${i + 1})">
-                            Rang ${i + 1}
-                        </button>
-                    `).join('')}
-                </div>
-            ` : ''}
-        </div>
-    `).join('');
-}
-
-// Toggle amélioration
-function toggleEnhancement(id) {
-    const checkbox = document.getElementById(`enh-${id}`);
-    const enh = enhancements.find(e => e.id === id);
-    
-    if (checkbox.checked) {
-        skill.enhancements[id] = { rank: 1 };
-        if (enh.maxRank > 1) {
-            document.getElementById(`rank-${id}`).style.display = 'flex';
-        }
-    } else {
-        delete skill.enhancements[id];
-        if (enh.maxRank > 1) {
-            document.getElementById(`rank-${id}`).style.display = 'none';
-        }
-    }
-    
-    updatePreview();
-}
-
-// Définir le rang d'une amélioration
-function setEnhancementRank(id, rank) {
-    if (skill.enhancements[id]) {
-        skill.enhancements[id].rank = rank;
-        
-        // Mettre à jour l'UI
-        const selector = document.getElementById(`rank-${id}`);
-        selector.querySelectorAll('.rank-btn').forEach((btn, i) => {
-            btn.classList.toggle('active', i + 1 === rank);
-        });
-        
-        updatePreview();
-    }
-}
-
-// Calculer le rang total
-function calculateTotalRank() {
-    let total = skill.baseRank;
-    for (const [id, data] of Object.entries(skill.enhancements)) {
-        const enh = enhancements.find(e => e.id === id);
-        total += enh.cost * data.rank;
-    }
-    return total;
-}
-
-// Mettre à jour la prévisualisation
-function updatePreview() {
-    const totalRank = calculateTotalRank();
-    
-    // Mettre à jour les coûts
-    document.getElementById('totalRank').textContent = totalRank;
-    document.getElementById('totalCost').textContent = totalRank;
-    document.getElementById('totalCost').className = totalRank > 6 ? 'cost-value error' : 'cost-value';
-    
-    // Générer la carte de prévisualisation
-    const preview = document.getElementById('previewCard');
-    
-    // Calculer les dégâts/soins de base
-    const statBonus = skill.statType;
-    let baseDamage = `3 + ${statBonus}`;
-    
-    // Appliquer les bonus de dégâts
-    if (skill.enhancements.damage) {
-        const bonus = enhancements.find(e => e.id === 'damage').values[skill.enhancements.damage.rank - 1];
-        baseDamage += ` + ${bonus}`;
-    }
-    
-    // Aire d'effet divise par 2
-    const isAoe = skill.enhancements.aoe;
-    if (isAoe) {
-        baseDamage = `(${baseDamage}) / 2`;
-    }
-    
-    // Déterminer si c'est un familier ou une invocation
-    const isFamiliar = skill.enhancements.familiar;
-    const hasSummon = skill.enhancements.summonTiny || skill.enhancements.summonSmall || 
-                      skill.enhancements.summonMedium || skill.enhancements.summonLarge;
-    
-    // Déterminer la durée
-    let duration = 'Instantané';
-    if (skill.enhancements.passive || isFamiliar) {
-        duration = 'Permanent';
-    } else if (skill.type === 'buff' || skill.type === 'debuff' || hasSummon) {
-        duration = '10 tours (1 minute)';
-    }
-    
-    // Générer le HTML de la carte
-    preview.innerHTML = `
-        <!-- Barre de titre avec nom seulement -->
-        <div class="card-title-bar">
-            <h3 class="preview-name">${skill.name}</h3>
-        </div>
-        
-        <!-- Image de la carte avec les badges -->
-        <div class="card-image">
-            ${skill.image ? `<canvas id="previewImageCanvas" width="400" height="280" style="width: 100%; height: 100%;"></canvas>` : '<div class="card-image-placeholder">🎴</div>'}
-            <div class="card-type-badge">${getTypeLabel(skill.type)}</div>
-            <div class="card-rank-badge ${totalRank > 6 ? 'error' : ''}">${totalRank}</div>
-        </div>
-        
-        <!-- Corps de la carte -->
-        <div class="card-body">
-            <div class="preview-desc">${skill.desc}</div>
-            
-            ${!skill.enhancements.passive && !isFamiliar ? `
-                <div class="preview-stat">
-                    <div class="preview-stat-icon">💎</div>
-                    <span class="preview-stat-label">Coût</span>
-                    <span class="preview-stat-value">${totalRank} ${skill.resourceType === 'mana' ? 'Mana' : skill.resourceType === 'endurance' ? 'Endurance' : 'PV'}</span>
-                </div>
-            ` : `
-                <div class="preview-stat">
-                    <div class="preview-stat-icon">♾️</div>
-                    <span class="preview-stat-label">Coût</span>
-                    <span class="preview-stat-value" style="color: #4a9171;">Aucun (Passif)</span>
-                </div>
-            `}
-            ${(skill.type === 'damage' || skill.type === 'heal' || skill.enhancements.heal) && !hasSummon ? `
-                <div class="preview-stat">
-                    <div class="preview-stat-icon">${skill.type === 'heal' || skill.enhancements.heal ? '❤️' : '⚔️'}</div>
-                    <span class="preview-stat-label">${skill.type === 'heal' || skill.enhancements.heal ? 'Soins' : 'Dégâts'}</span>
-                    <span class="preview-stat-value">${baseDamage}</span>
-                </div>
-            ` : ''}
-            ${skill.enhancements.barrier ? `
-                <div class="preview-stat">
-                    <div class="preview-stat-icon">🛡️</div>
-                    <span class="preview-stat-label">Barrière</span>
-                    <span class="preview-stat-value">${enhancements.find(e => e.id === 'barrier').values[skill.enhancements.barrier.rank - 1]} points</span>
-                </div>
-            ` : ''}
-            ${skill.enhancements.armorPen ? `
-                <div class="preview-stat">
-                    <div class="preview-stat-icon">🗡️</div>
-                    <span class="preview-stat-label">Pénétration d'Armure</span>
-                    <span class="preview-stat-value">Ignore ${enhancements.find(e => e.id === 'armorPen').values[skill.enhancements.armorPen.rank - 1]} RD</span>
-                </div>
-            ` : ''}
-            ${skill.enhancements.damageReduction ? `
-                <div class="preview-stat">
-                    <div class="preview-stat-icon">🛡️</div>
-                    <span class="preview-stat-label">Réduction de Dégât</span>
-                    <span class="preview-stat-value">-${enhancements.find(e => e.id === 'damageReduction').values[skill.enhancements.damageReduction.rank - 1]} dégâts reçus</span>
-                </div>
-            ` : ''}
-            ${skill.enhancements.statBonus ? `
-                <div class="preview-stat">
-                    <div class="preview-stat-icon">💪</div>
-                    <span class="preview-stat-label">Bonus de Caractéristique</span>
-                    <span class="preview-stat-value">+${enhancements.find(e => e.id === 'statBonus').values[skill.enhancements.statBonus.rank - 1]}</span>
-                </div>
-            ` : ''}
-            <div class="preview-stat">
-                <div class="preview-stat-icon">⏱️</div>
-                <span class="preview-stat-label">Durée</span>
-                <span class="preview-stat-value">${duration}</span>
-            </div>
-            ${isAoe ? `
-                <div class="preview-stat">
-                    <div class="preview-stat-icon">🎯</div>
-                    <span class="preview-stat-label">Portée</span>
-                    <span class="preview-stat-value">${skill.enhancements.passive ? '5m' : '10m'} de rayon</span>
-                </div>
-            ` : ''}
-            ${hasSummon ? `
-                <div class="preview-stat">
-                    <div class="preview-stat-icon">👥</div>
-                    <span class="preview-stat-label">Invocation</span>
-                    <span class="preview-stat-value">${getSummonDescription()}</span>
-                </div>
-            ` : ''}
-            
-            ${Object.keys(skill.enhancements).length > 0 ? `
-                <div class="preview-enhancements">
-                    <div class="preview-enhancements-title">Effets</div>
-                    ${Object.entries(skill.enhancements).map(([id, data]) => {
-                        const enh = enhancements.find(e => e.id === id);
-                        let text = enh.name;
-                        if (enh.values && data.rank) {
-                            text += ` : ${enh.values[data.rank - 1]}`;
-                        } else if (enh.maxRank > 1 && data.rank > 1) {
-                            text += ` (Rang ${data.rank})`;
-                        }
-                        return `<div class="preview-enhancement">${text}</div>`;
-                    }).join('')}
-                    ${isFamiliar ? `<div class="preview-enhancement">Doit être nourri quotidiennement</div>` : ''}
-                    ${skill.enhancements.passive ? `<div class="preview-enhancement">Effet permanent, aucun coût à l'activation</div>` : ''}
-                </div>
-            ` : ''}
-            
-            ${totalRank > 6 ? `
-                <div style="background: rgba(194, 65, 62, 0.2); padding: 0.75rem; border-radius: 8px; margin-top: 1rem; border-left: 3px solid #c2413e;">
-                    <strong style="color: #c2413e; font-size: 0.9rem;">⚠️ Rang trop élevé !</strong><br>
-                    <span style="font-size: 0.85rem; color: #d0d0d0;">Maximum autorisé: Rang 6</span>
-                </div>
-            ` : ''}
-        </div>
-    `;
-    
-    // Dessiner l'image dans le canvas de prévisualisation si elle existe
-    if (skill.image) {
-        setTimeout(updatePreviewImageCanvas, 0);
-    }
-}
-
-function getSummonDescription() {
-    if (skill.enhancements.summonTiny) return '2 créatures minuscules';
-    if (skill.enhancements.summonSmall) return '1 créature petite';
-    if (skill.enhancements.summonMedium) return '1 créature moyenne';
-    if (skill.enhancements.summonLarge) return '1 créature grande';
-    if (skill.enhancements.familiar) return 'Familier permanent';
-    return 'Aucune';
-}
-
-function getTypeLabel(type) {
-    const labels = {
-        damage: 'Dégâts',
-        heal: 'Soin',
-        buff: 'Buff',
-        debuff: 'Debuff',
-        summon_familiar: 'Créature',
-        cosmetic: 'Cosmétique'
-    };
-    return labels[type] || type;
-}
-
-// Sauvegarder
+// ============================================================
+// Sauvegarde / Chargement / Réinitialisation
+// ============================================================
 function saveSkill() {
     const data = JSON.stringify(skill, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
@@ -678,7 +779,6 @@ function saveSkill() {
     URL.revokeObjectURL(url);
 }
 
-// Charger
 function loadSkill() {
     const input = document.createElement('input');
     input.type = 'file';
@@ -686,60 +786,29 @@ function loadSkill() {
     input.onchange = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        
         const reader = new FileReader();
         reader.onload = (event) => {
             try {
-                skill = JSON.parse(event.target.result);
-                
-                // Mettre à jour l'UI
-                document.getElementById('skillName').value = skill.name;
-                document.getElementById('skillDesc').value = skill.desc;
-                document.getElementById('resourceType').value = skill.resourceType;
-                document.getElementById('statType').value = skill.statType || 'INT';
-                document.getElementById('skillType').value = skill.type;
-                
-                // Charger l'image si elle existe
-                if (skill.image) {
-                    if (!skill.imagePosition) {
-                        skill.imagePosition = { x: 0, y: 0, scale: 1 };
-                    }
-                    drawSkillImageOnCanvas();
-                    
-                    // Ajouter le bouton de suppression
-                    const container = skillImageCanvas?.parentElement;
-                    if (container && !container.querySelector('.remove-skill-img-btn')) {
-                        const btn = document.createElement('button');
-                        btn.type = 'button';
-                        btn.className = 'remove-skill-img-btn';
-                        btn.textContent = '✕';
-                        btn.onclick = removeSkillImage;
-                        btn.style.cssText = 'position:absolute;top:10px;right:10px;width:35px;height:35px;border-radius:50%;background:var(--danger);border:none;color:white;font-size:1rem;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,0.3);';
-                        container.appendChild(btn);
-                    }
-                } else {
-                    skill.imagePosition = { x: 0, y: 0, scale: 1 };
-                    drawSkillImagePlaceholder();
-                }
-                
-                // Re-rendre les améliorations pour afficher les bonnes selon le type
-                renderEnhancements();
-                
-                // Réinitialiser les checkboxes
-                document.querySelectorAll('.enhancement-checkbox').forEach(cb => cb.checked = false);
-                
-                // Appliquer les améliorations
-                for (const [id, data] of Object.entries(skill.enhancements)) {
-                    document.getElementById(`enh-${id}`).checked = true;
-                    const enh = enhancements.find(e => e.id === id);
-                    if (enh.maxRank > 1) {
-                        document.getElementById(`rank-${id}`).style.display = 'flex';
-                        setEnhancementRank(id, data.rank);
-                    }
-                }
-                
-                updatePreview();
-            } catch (error) {
+                const loaded = JSON.parse(event.target.result);
+                // Compatibilité avec les anciens fichiers
+                skill = {
+                    name:          loaded.name          ?? 'Capacité Sans Nom',
+                    desc:          loaded.desc          ?? 'Description manquante.',
+                    niveau:        loaded.niveau        ?? 1,
+                    sortType:      loaded.sortType      ?? 'mono',
+                    effectType:    loaded.effectType    ?? 'degats',
+                    alterationType:loaded.alterationType?? null,
+                    resourceType:  loaded.resourceType  ?? 'mana',
+                    carac:         loaded.carac         ?? (loaded.statType ?? 'INT'),
+                    image:         loaded.image         ?? null,
+                    imagePosition: loaded.imagePosition ?? { x: 0, y: 0, scale: 1 }
+                };
+                // Aller directement au récap
+                currentStep = 5;
+                renderProgressBar();
+                renderStep();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (err) {
                 alert('Erreur lors du chargement du fichier');
             }
         };
@@ -748,36 +817,33 @@ function loadSkill() {
     input.click();
 }
 
-// Réinitialiser
 function resetSkill() {
-    if (confirm('Êtes-vous sûr de vouloir réinitialiser ?')) {
+    if (confirm('Êtes-vous sûr de vouloir recommencer ?')) {
         skill = {
             name: 'Capacité Sans Nom',
             desc: 'Une capacité magique puissante.',
+            niveau: 1,
+            sortType: 'mono',
+            effectType: 'degats',
+            alterationType: null,
             resourceType: 'mana',
-            statType: 'INT',
-            type: 'damage',
-            baseRank: 1,
-            enhancements: {},
+            carac: 'INT',
             image: null,
             imagePosition: { x: 0, y: 0, scale: 1 }
         };
-        
-        document.getElementById('skillName').value = skill.name;
-        document.getElementById('skillDesc').value = skill.desc;
-        document.getElementById('resourceType').value = skill.resourceType;
-        document.getElementById('statType').value = skill.statType;
-        document.getElementById('skillType').value = skill.type;
-        
-        // Réinitialiser l'image
-        drawSkillImagePlaceholder();
-        
-        document.querySelectorAll('.enhancement-checkbox').forEach(cb => cb.checked = false);
-        document.querySelectorAll('.rank-selector').forEach(rs => rs.style.display = 'none');
-        
-        updatePreview();
+        currentStep = 1;
+        renderProgressBar();
+        renderStep();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
 
-// Initialiser au chargement
+// ============================================================
+// Initialisation
+// ============================================================
+function init() {
+    renderProgressBar();
+    renderStep();
+}
+
 init();
