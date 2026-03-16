@@ -263,6 +263,63 @@
             line-height: 1.4;
         }
 
+        /* ---- Toggle Passif ---- */
+        .passif-toggle {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: rgba(30, 45, 63, 0.6);
+            border: 2px solid rgba(200, 155, 60, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+            user-select: none;
+        }
+        .passif-toggle:hover {
+            border-color: rgba(200, 155, 60, 0.5);
+            background: rgba(30, 45, 63, 0.8);
+        }
+        .passif-toggle.active {
+            border-color: var(--primary);
+            background: rgba(200, 155, 60, 0.1);
+        }
+        .passif-toggle-icon {
+            font-size: 1.8rem;
+            flex-shrink: 0;
+        }
+        .passif-toggle-name {
+            font-family: 'Cinzel', serif;
+            color: var(--primary);
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+        .passif-toggle-desc {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            line-height: 1.4;
+        }
+        .passif-toggle-check {
+            margin-left: auto;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid rgba(200, 155, 60, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: var(--primary);
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        .passif-toggle.active .passif-toggle-check {
+            background: var(--primary);
+            color: var(--secondary);
+            border-color: var(--primary);
+        }
+
         /* ---- Carte de prévisualisation (étape 5) ---- */
         .preview-skill {
             background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
@@ -276,6 +333,10 @@
                 linear-gradient(135deg, #c89b3c 0%, #e4ae39 50%, #c89b3c 100%);
             background-origin: border-box;
             background-clip: padding-box, border-box;
+        }
+        .card-content {
+            display: flex;
+            flex-direction: row;
         }
         .card-title-bar {
             background: linear-gradient(135deg, rgba(20, 40, 80, 0.95) 0%, rgba(10, 20, 40, 0.95) 100%);
@@ -314,30 +375,21 @@
             left: 10px;
             width: 60px;
             height: 70px;
-            background: linear-gradient(135deg, #2a4d7c 0%, #1a3a5c 100%);
-            clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Cinzel', serif;
-            font-size: 2rem;
-            font-weight: 700;
-            color: #e4ae39;
-            border: 3px solid #c89b3c;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
             z-index: 10;
         }
         .card-image {
-            width: 100%;
-            height: 280px;
+            width: 260px;
+            flex-shrink: 0;
             background: linear-gradient(135deg, rgba(42, 77, 124, 0.3) 0%, rgba(26, 58, 92, 0.3) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 4rem;
-            border-bottom: 3px solid rgba(200, 155, 60, 0.5);
+            border-right: 3px solid rgba(200, 155, 60, 0.5);
             position: relative;
             overflow: hidden;
+            min-height: 300px;
+            /* height: 300px supprimé — flex stretch remplit la hauteur complète de la carte */
         }
         .card-image::before {
             content: '';
@@ -346,7 +398,7 @@
             background: radial-gradient(circle at center, rgba(228, 174, 57, 0.2) 0%, transparent 70%);
             pointer-events: none;
         }
-        .card-image img, .card-image canvas {
+        .card-image img, .card-image #previewImageCanvas {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -354,6 +406,7 @@
         }
         .card-image-placeholder { opacity: 0.2; font-size: 5rem; }
         .card-body {
+            flex: 1;
             padding: 1.5rem;
             background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(15, 15, 30, 0.95) 100%);
         }
@@ -394,6 +447,67 @@
             color: #e4ae39;
             font-weight: 700;
             font-family: 'Cinzel', serif;
+        }
+
+        /* ---- Répartition des niveaux (multi-effets) ---- */
+        #distributionSection {
+            margin-top: 1.5rem;
+            background: rgba(15, 25, 40, 0.5);
+            border: 1px solid rgba(200, 155, 60, 0.25);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+        .distribution-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0;
+        }
+        .distribution-row + .distribution-row {
+            border-top: 1px solid rgba(200, 155, 60, 0.1);
+        }
+        .distribution-icon {
+            font-size: 1.3rem;
+            width: 30px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .distribution-label {
+            flex: 1;
+            font-family: 'Cinzel', serif;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+        .distribution-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid rgba(200, 155, 60, 0.4);
+            background: rgba(30, 45, 63, 0.6);
+            color: var(--primary);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .distribution-btn:hover:not(.disabled) {
+            background: rgba(200, 155, 60, 0.2);
+            border-color: var(--primary);
+        }
+        .distribution-btn.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .distribution-value {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent);
+            width: 28px;
+            text-align: center;
         }
 
         /* ---- Responsive ---- */

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système de Rand - Comté de Clairebois</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/common.css">
+    <style>
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        .page-subtitle {
+            font-size: 1rem;
+            color: var(--text-light);
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 300;
+            margin-top: 0.5rem;
+        }
+
+        .content-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        .section-card {
+            background: linear-gradient(135deg, rgba(30, 45, 63, 0.8) 0%, rgba(15, 25, 35, 0.8) 100%);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 1px solid rgba(200, 155, 60, 0.2);
+            margin-bottom: 2rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .section-card:hover {
+            border-color: rgba(200, 155, 60, 0.4);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(200, 155, 60, 0.2);
+        }
+
+        .section-icon {
+            font-size: 2rem;
+        }
+
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            color: var(--primary);
+            letter-spacing: 0.05em;
+        }
+
+        .section-body {
+            color: var(--text-light);
+            line-height: 1.8;
+            font-size: 1.05rem;
+            opacity: 0.85;
+        }
+
+        .section-body p {
+            margin-bottom: 1rem;
+        }
+
+        .section-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .rules-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .rules-table th {
+            font-family: 'Cinzel', serif;
+            color: var(--primary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 2px solid rgba(200, 155, 60, 0.3);
+        }
+
+        .rules-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(200, 155, 60, 0.1);
+            color: var(--text-light);
+            opacity: 0.85;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .rules-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .rules-table tr:hover td {
+            background: rgba(200, 155, 60, 0.05);
+        }
+
+        .highlight-box {
+            background: rgba(200, 155, 60, 0.08);
+            border-left: 3px solid var(--primary);
+            border-radius: 0 10px 10px 0;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            color: var(--text-light);
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding: 2rem;
+            color: var(--text-light);
+            opacity: 0.4;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .section-card {
+                padding: 1.5rem;
+            }
+
+            .section-title {
+                font-size: 1.2rem;
+            }
+
+            .rules-table th,
+            .rules-table td {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-link">← Retour à l'accueil</a>
+
+        <header>
+            <h1>Système de Rand</h1>
+            <p class="page-subtitle">Règles & Mécaniques de jeu — Comté de Clairebois</p>
+        </header>
+
+        <div class="content-wrapper">
+
+            <!-- Section 1 : Actions par tour -->
+            <div class="section-card">
+                <div class="section-header">
+                    <span class="section-icon">🎲</span>
+                    <h2 class="section-title">Actions par tour</h2>
+                </div>
+                <div class="section-body">
+                    <p>Chaque personnage dispose de trois ressources qui se rechargent au début de son tour.</p>
+                    <table class="rules-table">
+                        <thead>
+                            <tr>
+                                <th>Ressource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Action</strong></td>
+                                <td>Utilisée pour attaquer, lancer un sort, interagir avec l'environnement ou effectuer toute autre action principale. Se recharge au début du tour du personnage.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Mouvement</strong></td>
+                                <td>Permet au personnage de se déplacer sur le terrain. Se recharge au début du tour du personnage.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Réaction</strong></td>
+                                <td>Peut être utilisée en dehors du tour du personnage pour répondre à une menace (esquive, blocage, sort défensif). Se recharge au début du tour du personnage.<br><br>
+                                Le personnage gagne <strong>une réaction supplémentaire</strong> tous les 40 points d'Agilité au-dessus de 80.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="highlight-box">
+                        Exemple : un personnage avec 120 d'Agilité dispose de 2 réactions par tour (80 de base + 40 supplémentaires = +1 réaction).
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2 : Actions spéciales -->
+            <div class="section-card">
+                <div class="section-header">
+                    <span class="section-icon">✨</span>
+                    <h2 class="section-title">Actions spéciales</h2>
+                </div>
+                <div class="section-body">
+                    <p>
+                        Lorsqu'un personnage souhaite réaliser une action d'envergure — sort de zone, tir multiple, buff ou debuff — il doit recourir à une <strong>action spéciale</strong>.
+                        Celle-ci consomme à la fois l'<strong>action</strong> et le <strong>mouvement</strong> du personnage, en plus d'une ressource selon la nature de l'action :
+                    </p>
+                    <table class="rules-table">
+                        <thead>
+                            <tr>
+                                <th>Type d'action</th>
+                                <th>Ressource consommée</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Physique (attaque puissante, tir multiple…)</td>
+                                <td>Points d'Endurance (PE)</td>
+                            </tr>
+                            <tr>
+                                <td>Matérielle (utilisation d'objets, consommables…)</td>
+                                <td>Objets</td>
+                            </tr>
+                            <tr>
+                                <td>Magique (sort de zone, buff, debuff…)</td>
+                                <td>Points de Magie (PM)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 3 : Défense -->
+            <div class="section-card">
+                <div class="section-header">
+                    <span class="section-icon">🛡️</span>
+                    <h2 class="section-title">Défense</h2>
+                </div>
+                <div class="section-body">
+                    <p>
+                        Pour se défendre d'une attaque, un personnage peut dépenser sa <strong>réaction</strong> afin d'effectuer un <strong>jet de réaction</strong>.
+                        Trois formes de défense sont possibles :
+                    </p>
+                    <table class="rules-table">
+                        <thead>
+                            <tr>
+                                <th>Défense</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Esquive</strong></td>
+                                <td>Le personnage tente d'éviter l'attaque par un mouvement rapide.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Blocage</strong></td>
+                                <td>Le personnage interpose son bouclier pour absorber le coup.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sort défensif</strong></td>
+                                <td>Le personnage utilise un sort pour contrer ou atténuer l'attaque.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 4 : Dégâts -->
+            <div class="section-card">
+                <div class="section-header">
+                    <span class="section-icon">⚔️</span>
+                    <h2 class="section-title">Dégâts</h2>
+                </div>
+                <div class="section-body">
+                    <p>Les dégâts infligés dépendent du type d'arme ou de la nature de l'attaque.</p>
+                    <table class="rules-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Formule</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Arme à une main</td>
+                                <td><strong>4 + Mod.FOR</strong> dégâts physiques</td>
+                            </tr>
+                            <tr>
+                                <td>Arme à deux mains / Double arme</td>
+                                <td><strong>6 + Mod.FOR × 1,5</strong> dégâts physiques</td>
+                            </tr>
+                            <tr>
+                                <td>Attaque magique</td>
+                                <td><strong>3 + Mod.INT</strong> dégâts magiques</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 6 : Formations -->
+            <div class="section-card">
+                <div class="section-header">
+                    <span class="section-icon">📜</span>
+                    <h2 class="section-title">Formations</h2>
+                </div>
+                <div class="section-body">
+                    <p>
+                        Chaque formation maîtrisée accorde un bonus de <strong>+20</strong> à la caractéristique utilisée pour activer la compétence associée.
+                    </p>
+                    <div class="highlight-box">
+                        Exception : les <strong>armures</strong>. Sans la formation correspondante, une armure ne confère que la <strong>moitié de sa Réduction de Dégâts (RD)</strong>.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 7 : Armures -->
+            <div class="section-card">
+                <div class="section-header">
+                    <span class="section-icon">🛡️</span>
+                    <h2 class="section-title">Armures</h2>
+                </div>
+                <div class="section-body">
+                    <p>Les armures réduisent les dégâts physiques reçus grâce à leur <strong>Réduction de Dégâts (RD)</strong>. Sans formation adaptée, cette valeur est divisée par deux <strong>(arrondie à l'inférieur)</strong>.</p>
+                    <div class="highlight-box">
+                        La RD ne protège <strong>pas</strong> contre les dégâts magiques.
+                    </div>
+                    <table class="rules-table">
+                        <thead>
+                            <tr>
+                                <th>Catégorie</th>
+                                <th>Exemple</th>
+                                <th>RD (avec formation)</th>
+                                <th>RD (sans formation)</th>
+                                <th>AGI max</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Légère</td>
+                                <td>Cuir</td>
+                                <td><strong>1</strong></td>
+                                <td>0</td>
+                                <td>—</td>
+                            </tr>
+                            <tr>
+                                <td>Moyenne</td>
+                                <td>Maille</td>
+                                <td><strong>2</strong></td>
+                                <td>1</td>
+                                <td>160</td>
+                            </tr>
+                            <tr>
+                                <td>Semi-lourde</td>
+                                <td>Maille + Plaques</td>
+                                <td><strong>3</strong></td>
+                                <td>1</td>
+                                <td>120</td>
+                            </tr>
+                            <tr>
+                                <td>Lourde</td>
+                                <td>Full Plaque</td>
+                                <td><strong>4</strong></td>
+                                <td>2</td>
+                                <td>80</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="highlight-box">
+                        Le maximum d'AGI indique la valeur d'Agilité effective plafonnée par l'armure, quelle que soit l'AGI réelle du personnage.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <footer>
+            © 2026 Comté de Clairebois — Tous droits réservés
+        </footer>
+    </div>
+</body>
+</html>
