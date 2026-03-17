@@ -915,6 +915,7 @@
             caracLibre: null,
             stats: { for: 80, agi: 80, int: 80, pv: 0, pe: 0, pm: 0 },
             formations: 0,
+            formationsMagieBonus: 0,
             selectedFormations: [], // Formations sélectionnées par le joueur
             image: null, // Image du personnage (base64)
             imagePosition: { x: 0, y: 0, scale: 1 } // Position et zoom de l'image
@@ -969,22 +970,29 @@
         function calculateStats() {
             const stats = { for: 80, agi: 80, int: 80, pv: 0, pe: 3, pm: 3 };
             let formations = 0;
+            character.formationsMagieBonus = 0;
 
             if (character.race) {
                 Object.keys(character.race.stats).forEach(key => {
                     stats[key] = (stats[key] || 0) + character.race.stats[key];
                 });
-                
+
                 // Si la race a un choix (comme Humain) et qu'un choix a été fait
                 if (character.race.hasChoice && character.raceChoice) {
                     Object.keys(character.raceChoice.stats).forEach(key => {
                         stats[key] = (stats[key] || 0) + character.raceChoice.stats[key];
                     });
                 }
-                
+
                 // Polyvalence (Humain) : +2 formations
                 if (character.race.name === "Humain") {
                     formations += 2;
+                }
+
+                // Bien-né : +1 formation réservée à la magie ou l'enchantement
+                if (character.race.name === "Bien-né") {
+                    formations += 1;
+                    character.formationsMagieBonus = 1;
                 }
             }
 
@@ -1451,11 +1459,16 @@
 
                 case 7:
                     const formationsRestantes = character.formations - character.selectedFormations.length;
-                    
+                    const magicSelectedCount = character.selectedFormations.filter(f => {
+                        const name = typeof f === 'object' ? f.base : f;
+                        return name.startsWith('Magie') || name === 'Enchantement';
+                    }).length;
+                    const magicFormationsNeeded = Math.max(0, (character.formationsMagieBonus || 0) - magicSelectedCount);
+
                     content.innerHTML = `
                         <h2 class="step-title">📚 Formations</h2>
                         <p class="step-description">Choisissez vos formations. Vous pouvez en sélectionner <strong>${character.formations}</strong>.</p>
-                        
+
                         <div style="background: rgba(200, 155, 60, 0.15); padding: 1rem; border-radius: 12px; margin-bottom: 2rem; text-align: center; border: 2px solid rgba(200, 155, 60, 0.3);">
                             <div style="font-size: 1.5rem; color: var(--accent); font-family: 'Cinzel', serif;">
                                 <strong>${character.selectedFormations.length}</strong> / ${character.formations} formations sélectionnées
@@ -1463,19 +1476,32 @@
                             ${formationsRestantes > 0 ? `<div style="margin-top: 0.5rem; opacity: 0.8;">Encore ${formationsRestantes} à choisir</div>` : ''}
                         </div>
 
+                        ${character.formationsMagieBonus > 0 ? `
+                        <div style="background: rgba(100, 150, 255, 0.1); padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 1.5rem; border: 1px solid rgba(100, 150, 255, 0.3); font-size: 0.9rem; opacity: 0.9;">
+                            ✦ Capacité <strong>Bien-né</strong> : 1 formation doit être une <strong>Magie</strong> ou <strong>l'Enchantement</strong>.
+                        </div>` : ''}
+
                         <div class="options-grid">
                             ${gameData.formationsDisponibles.map((formation, idx) => {
                                 // Formations spéciales qui peuvent être sélectionnées plusieurs fois
                                 const multiSelectFormations = ['Custom', 'Métier', 'Connaissance'];
                                 const isMultiSelect = multiSelectFormations.includes(formation);
-                                
+                                const isMagicFormation = formation.startsWith('Magie') || formation === 'Enchantement';
+
                                 // Pour les formations normales, vérifier si sélectionnée
-                                const isSelected = !isMultiSelect && character.selectedFormations.some(f => 
+                                const isSelected = !isMultiSelect && character.selectedFormations.some(f =>
                                     f === formation || (typeof f === 'object' && f.base === formation)
                                 );
-                                
-                                // On peut cliquer si: multi-select et espace dispo, OU déjà sélectionné (pour désélectionner), OU pas sélectionné et espace dispo
-                                const canClick = (isMultiSelect && formationsRestantes > 0) || isSelected || (!isSelected && formationsRestantes > 0);
+
+                                // On peut cliquer si sélectionné (désélectionner), ou s'il y a de la place
+                                // Pour les non-magie, il faut qu'il reste plus de slots que de slots magie obligatoires
+                                const canClick = isSelected || (
+                                    formationsRestantes > 0 && (
+                                        isMultiSelect ||
+                                        isMagicFormation ||
+                                        formationsRestantes > magicFormationsNeeded
+                                    )
+                                );
                                 const shouldDisable = !canClick;
                                 
                                 return `
